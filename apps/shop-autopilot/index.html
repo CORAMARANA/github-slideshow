@@ -1,0 +1,699 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Alltagszauberkids Autopilot</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: handbook app — sticky chapter nav (sidebar on desktop, chip row on phone), one chapter at a time, checklists tracked per device */
+:root{
+  --bg:#F4F7FB; --surface:#FFFFFF; --fg:#1B2340; --muted:#56607F; --line:#DCE2EE;
+  --accent:#137C7C; --accent-fg:#FFFFFF; --sun:#F5B700; --sun-fg:#1B2340; --soft:#E6F2F1; --code:#EEF2F8;
+  --display:"Bricolage Grotesque","Avenir Next","Segoe UI",sans-serif;
+  --body:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1424; --surface:#182036; --fg:#E9EDF7; --muted:#A3ADC6; --line:#2A3452;
+  --accent:#4FC7C2; --accent-fg:#0F1424; --sun:#F5C432; --sun-fg:#1B2340; --soft:#16303A; --code:#121A2E; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1424; --surface:#182036; --fg:#E9EDF7; --muted:#A3ADC6; --line:#2A3452;
+  --accent:#4FC7C2; --accent-fg:#0F1424; --sun:#F5C432; --sun-fg:#1B2340; --soft:#16303A; --code:#121A2E; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16.5px;line-height:1.6}
+.shell{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 64px;display:grid;grid-template-columns:260px minmax(0,1fr);gap:40px}
+h1,h2,h3,h4{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.1}
+h1{font-size:clamp(2rem,4vw,2.9rem);font-weight:800;letter-spacing:-.01em}
+h2{font-size:1.55rem;font-weight:800;margin-top:8px}
+h3{font-size:1.2rem;font-weight:700}
+p{margin:0}
+a{color:var(--accent)}
+.eyebrow{font-size:.75rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:700}
+.lead{font-size:1.1rem;max-width:62ch;color:var(--muted)}
+article{display:flex;flex-direction:column;gap:22px;min-width:0}
+article > p, article li{max-width:68ch}
+ul,ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
+code{font-family:var(--mono);font-size:.88em;background:var(--code);padding:1px 5px;border-radius:4px}
+.mark{background:var(--sun);color:var(--sun-fg);padding:0 4px;border-radius:3px}
+
+/* Nav */
+aside{position:sticky;top:calc(16px + env(safe-area-inset-top,0px));align-self:start;display:flex;flex-direction:column;gap:18px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.brand b{font-family:var(--display);font-size:1.35rem;font-weight:800;line-height:1.1}
+.brand b span{color:var(--accent)}
+.progress{display:flex;flex-direction:column;gap:6px;font-size:.85rem;color:var(--muted)}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);transition:width .3s}
+nav.ch{display:flex;flex-direction:column;gap:2px}
+nav.ch a{display:flex;justify-content:space-between;gap:8px;align-items:baseline;text-decoration:none;color:var(--fg);padding:8px 10px;border-radius:8px;font-weight:700;font-size:.95rem}
+nav.ch a small{font-weight:400;color:var(--muted);font-variant-numeric:tabular-nums;font-size:.8rem;white-space:nowrap}
+nav.ch a:hover{background:var(--soft)}
+nav.ch a[aria-current="page"]{background:var(--fg);color:var(--bg)}
+nav.ch a[aria-current="page"] small{color:var(--bg);opacity:.75}
+nav.ch a.complete small::before{content:"✓ "}
+a:focus-visible,button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* Components */
+.box{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.note{background:var(--soft);border-radius:12px;padding:14px 16px;font-size:.95rem}
+.note b{font-family:var(--display)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+.tasks{list-style:none;padding:0;display:flex;flex-direction:column;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.tasks li{max-width:none;border-bottom:1px solid var(--line)}
+.tasks li:last-child{border-bottom:0}
+.tasks label{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;cursor:pointer}
+.tasks input{width:20px;height:20px;margin-top:3px;accent-color:var(--accent);flex:none}
+.tasks input:checked + span{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--accent)}
+.tasks .h{display:block;font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:700;padding:12px 16px 0}
+
+.steps{counter-reset:s;list-style:none;padding:0;gap:14px}
+.steps > li{counter-increment:s;display:grid;grid-template-columns:36px minmax(0,1fr);gap:12px;max-width:none}
+.steps > li::before{content:counter(s);width:32px;height:32px;border-radius:50%;background:var(--fg);color:var(--bg);display:grid;place-items:center;font-family:var(--display);font-weight:800}
+.steps > li > div{display:flex;flex-direction:column;gap:6px;min-width:0}
+
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:640px;font-size:.93rem}
+th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+td b{font-family:var(--display)}
+.cost{font-family:var(--mono);font-size:.85rem;white-space:nowrap}
+.pill{display:inline-block;font-size:.72rem;font-weight:700;padding:1px 8px;border-radius:99px;background:var(--sun);color:var(--sun-fg);letter-spacing:.04em;text-transform:uppercase}
+.pill.t{background:var(--accent);color:var(--accent-fg)}
+.pill.o{background:transparent;border:1px solid var(--line);color:var(--muted)}
+
+.funnel{display:flex;flex-direction:column;gap:6px;align-items:center}
+.funnel div{color:var(--accent-fg);background:var(--accent);padding:10px 14px;border-radius:6px;text-align:center;font-weight:700;display:flex;flex-direction:column;max-width:100%}
+.funnel div small{font-weight:400;opacity:.9;font-size:.82rem}
+.funnel div:nth-child(odd){background:var(--fg);color:var(--bg)}
+
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.88rem}
+.flow span{background:var(--code);border:1px solid var(--line);border-radius:6px;padding:3px 9px;font-family:var(--mono);font-size:.8rem}
+.flow i{font-style:normal;color:var(--muted)}
+
+.tpl{position:relative}
+pre{margin:0;background:var(--code);border:1px solid var(--line);border-radius:10px;padding:14px;overflow-x:auto;font-family:var(--mono);font-size:.82rem;line-height:1.55;white-space:pre-wrap;word-break:break-word}
+pre.nowrap{white-space:pre;word-break:normal}
+.copy{position:absolute;top:8px;right:8px;background:var(--surface);color:var(--fg);border:1px solid var(--line);border-radius:6px;font:600 .78rem var(--body);padding:4px 10px;cursor:pointer}
+details.box summary{cursor:pointer;font-family:var(--display);font-weight:700;font-size:1.1rem;list-style:none;display:flex;justify-content:space-between;gap:10px}
+details.box summary::-webkit-details-marker{display:none}
+details.box summary::after{content:"+";color:var(--accent);font-size:1.4rem;line-height:1}
+details.box[open] summary::after{content:"–"}
+.meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+.pager{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:18px}
+.pager button{background:var(--surface);border:1px solid var(--line);color:var(--fg);border-radius:10px;padding:10px 16px;font:700 .95rem var(--body);cursor:pointer}
+.pager button.fw{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+
+@media (max-width:860px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:20px}
+  aside{position:sticky;top:env(safe-area-inset-top,0px);z-index:3;background:var(--bg);padding-block:10px;gap:10px;margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));border-bottom:1px solid var(--line)}
+  .brand small{display:none}
+  nav.ch{flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:2px}
+  nav.ch a{white-space:nowrap;border:1px solid var(--line);padding:6px 12px}
+  nav.ch a small{display:none}
+}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<div class="shell">
+<aside>
+  <div class="brand"><small class="eyebrow">Handbuch</small><b>Alltagszauberkids <span>Autopilot</span></b></div>
+  <div class="progress"><div class="bar"><i id="pbar" style="width:0"></i></div><span id="ptxt">0 von 0 Schritten erledigt</span></div>
+  <nav class="ch" id="nav" aria-label="Kapitel"></nav>
+</aside>
+
+<main>
+<!-- ============ 1 START ============ -->
+<article id="start" data-t="Fahrplan">
+  <span class="eyebrow">Kapitel 1</span>
+  <h1>Den Shop von zu Hause steuern, ohne Büro</h1>
+  <p class="lead">Dieses Handbuch zeigt dir Schritt für Schritt, wie du Alltagszauberkids so aufbaust, dass Bestellungen, E-Mails, Kundenfragen und Social Media weitgehend allein laufen. Du kontrollierst alles vom Laptop oder Handy aus und greifst nur noch dort ein, wo es dich wirklich braucht.</p>
+
+  <div class="note"><b>So nutzt du das Handbuch:</b> Arbeite die Kapitel in der Reihenfolge durch. Hake jeden Schritt ab, wenn er erledigt ist. Dein Fortschritt wird auf diesem Gerät gespeichert. Plane pro Phase etwa eine Woche ein, wenn du nebenbei weiter verkaufst.</div>
+
+  <h2>Die Architektur in einem Bild</h2>
+  <div class="box">
+    <div class="flow"><span>Instagram / Pinterest</span><i>→</i><span>Landingpage + Gratis-PDF</span><i>→</i><span>E-Mail-Tool</span><i>→</i><span>Shopify</span><i>→</i><span>Versand + Buchhaltung</span></div>
+    <div class="flow"><i>darunter läuft:</i><span>n8n</span><i>verbindet alles</i><span>Obsidian</span><i>speichert dein Wissen</i><span>KI</span><i>schreibt Entwürfe</i><span>Telegram</span><i>meldet dir alles aufs Handy</i></div>
+  </div>
+
+  <h2>Fahrplan in 6 Phasen</h2>
+  <ul class="tasks">
+    <li class="h">Phase 1 · Fundament</li>
+    <li><label><input type="checkbox" data-task="p1a"><span>Alle Zugänge in einem Passwort-Manager sammeln (z. B. Bitwarden) und Zwei-Faktor-Anmeldung aktivieren</span></label></li>
+    <li><label><input type="checkbox" data-task="p1b"><span>Eine geschäftliche E-Mail-Domain einrichten, z. B. hallo@alltagszauberkids.de</span></label></li>
+    <li><label><input type="checkbox" data-task="p1c"><span>Rechtstexte prüfen und automatisch aktualisieren lassen (Kapitel 9)</span></label></li>
+    <li class="h">Phase 2 · Bestellungen laufen allein</li>
+    <li><label><input type="checkbox" data-task="p2a"><span>Versandtool anbinden, Etiketten mit einem Klick drucken</span></label></li>
+    <li><label><input type="checkbox" data-task="p2b"><span>Buchhaltungstool verbinden, Belege automatisch abholen lassen</span></label></li>
+    <li class="h">Phase 3 · E-Mail-Automatisierung</li>
+    <li><label><input type="checkbox" data-task="p3a"><span>Willkommensstrecke, Warenkorb-Erinnerung und Bewertungsanfrage live schalten (Kapitel 4)</span></label></li>
+    <li class="h">Phase 4 · Funnel</li>
+    <li><label><input type="checkbox" data-task="p4a"><span>Gratis-PDF erstellen, Landingpage bauen, Double-Opt-in testen (Kapitel 3)</span></label></li>
+    <li class="h">Phase 5 · Bots &amp; n8n</li>
+    <li><label><input type="checkbox" data-task="p5a"><span>n8n installieren und den Bestell-Melder für Telegram bauen (Kapitel 7)</span></label></li>
+    <li><label><input type="checkbox" data-task="p5b"><span>Kundenservice-Bot und Instagram-Bot einrichten (Kapitel 5)</span></label></li>
+    <li class="h">Phase 6 · KI-Brain</li>
+    <li><label><input type="checkbox" data-task="p6a"><span>Obsidian-Wissensbasis anlegen und mit n8n verbinden (Kapitel 6)</span></label></li>
+    <li><label><input type="checkbox" data-task="p6b"><span>Feste Wochenroutine einführen (Kapitel 8)</span></label></li>
+  </ul>
+</article>
+
+<!-- ============ 2 TOOLS ============ -->
+<article id="tools" data-t="Tool-Stack" hidden>
+  <span class="eyebrow">Kapitel 2</span>
+  <h1>Die wichtigsten Programme für deinen Shop</h1>
+  <p class="lead">Fang klein an. Die mit <span class="pill">Start</span> markierten Tools reichen für die ersten Monate. Alles andere kommt dazu, wenn ein Engpass auftaucht.</p>
+  <p class="eyebrow">Kosten: € = unter 20 € / Monat · €€ = 20–60 € · €€€ = mehr. Aktuelle Preise immer beim Anbieter prüfen.</p>
+
+  <div class="tbl"><table>
+    <thead><tr><th>Bereich</th><th>Empfehlung</th><th>Wofür</th><th>Kosten</th><th>Alternative</th></tr></thead>
+    <tbody>
+      <tr><td>Shop</td><td><b>Shopify</b> <span class="pill">Start</span></td><td>Produkte, Kasse, Zahlungen (PayPal, Klarna, Karten), riesiger App-Store</td><td class="cost">€€</td><td>WooCommerce (WordPress)</td></tr>
+      <tr><td>Automatisierung</td><td><b>n8n</b> <span class="pill">Start</span></td><td>Verbindet alle Tools, KI-Agenten, eigene Bots. Selbst gehostet sehr günstig</td><td class="cost">€ – €€</td><td>Make, Zapier</td></tr>
+      <tr><td>Wissen &amp; Notizen</td><td><b>Obsidian</b> <span class="pill">Start</span></td><td>Dein KI-Brain: Produktwissen, FAQ, Abläufe als Markdown-Dateien</td><td class="cost">kostenlos</td><td>Notion</td></tr>
+      <tr><td>E-Mail-Marketing</td><td><b>Klaviyo</b> oder <b>Brevo</b> <span class="pill">Start</span></td><td>Newsletter, Automatisierungen. Klaviyo ist tief in Shopify integriert, Brevo hat Server in der EU</td><td class="cost">kostenlos – €€</td><td>rapidmail, Klick-Tipp, Shopify Messaging</td></tr>
+      <tr><td>KI</td><td><b>Claude</b> / <b>ChatGPT</b> (API)</td><td>Texte, Produktbeschreibungen, E-Mail-Entwürfe, Agent im n8n</td><td class="cost">€ nach Verbrauch</td><td>Ollama (lokal, für sensible Daten)</td></tr>
+      <tr><td>Versand</td><td><b>Sendcloud</b> <span class="pill">Start</span></td><td>Etiketten aller Versender, Tracking-Mails, Retourenportal</td><td class="cost">kostenlos – €€</td><td>Shopify Versand, DHL Geschäftskundenportal</td></tr>
+      <tr><td>Bestellabwicklung</td><td><b>Billbee</b></td><td>Wenn du zusätzlich auf Etsy, Amazon oder eBay verkaufst: alle Bestellungen an einem Ort</td><td class="cost">€</td><td>Plentymarkets</td></tr>
+      <tr><td>Buchhaltung</td><td><b>Lexware Office</b> (früher lexoffice) <span class="pill">Start</span></td><td>Rechnungen, Belegabruf aus Shopify &amp; PayPal, Bank, Export für Steuerberatung</td><td class="cost">€ – €€</td><td>sevDesk</td></tr>
+      <tr><td>Kundenservice-Chat</td><td><b>Shopify Inbox</b></td><td>Chat im Shop, Antworten per App, Vorschläge</td><td class="cost">kostenlos</td><td>Tidio (mit KI-Agent Lyro)</td></tr>
+      <tr><td>Instagram-Bot</td><td><b>ManyChat</b></td><td>Automatische DMs auf Kommentare und Stichwörter</td><td class="cost">kostenlos – €</td><td>Meta Business Suite (Basis)</td></tr>
+      <tr><td>Social-Planung</td><td><b>Canva</b> + <b>Metricool</b></td><td>Designs, Reels vorplanen für Instagram, Pinterest, TikTok</td><td class="cost">€</td><td>Later, Buffer, Meta Business Suite</td></tr>
+      <tr><td>Bewertungen</td><td><b>Judge.me</b></td><td>Bewertungen mit Foto, automatische Anfrage nach Lieferung</td><td class="cost">kostenlos – €</td><td>Trusted Shops</td></tr>
+      <tr><td>Rechtstexte</td><td><b>IT-Recht Kanzlei</b> oder <b>Händlerbund</b> <span class="pill">Start</span></td><td>AGB, Widerruf, Datenschutz mit automatischer Aktualisierung per Schnittstelle</td><td class="cost">€</td><td>Trusted Shops Legal</td></tr>
+      <tr><td>Handy-Cockpit</td><td><b>Telegram</b></td><td>Dein privater Bot meldet Bestellungen, Zahlen, Fehler</td><td class="cost">kostenlos</td><td>Slack, E-Mail</td></tr>
+      <tr><td>Server</td><td><b>Hetzner Cloud</b></td><td>Kleiner Server in Deutschland für n8n, ca. 2 vCPU / 4 GB RAM reichen</td><td class="cost">€</td><td>n8n Cloud (ohne Technik)</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="note"><b>Faustregel:</b> Jedes neue Tool muss eine Aufgabe ersetzen, die du heute mehr als 30 Minuten pro Woche machst. Sonst kostet es mehr Pflege, als es spart.</div>
+
+  <ul class="tasks">
+    <li><label><input type="checkbox" data-task="t1"><span>Start-Tools ausgewählt und Konten angelegt</span></label></li>
+    <li><label><input type="checkbox" data-task="t2"><span>Mit jedem Tool, das Kundendaten verarbeitet, den Auftragsverarbeitungsvertrag (AVV) abgeschlossen</span></label></li>
+    <li><label><input type="checkbox" data-task="t3"><span>Liste aller Tools mit Kosten und Kündigungsfrist in Obsidian angelegt</span></label></li>
+  </ul>
+</article>
+
+<!-- ============ 3 FUNNEL ============ -->
+<article id="funnel" data-t="Funnels" hidden>
+  <span class="eyebrow">Kapitel 3</span>
+  <h1>Funnels: Vom ersten Kontakt zur Stammkundin</h1>
+  <p class="lead">Ein Funnel ist ein fester Weg, den neue Menschen durchlaufen: Sie entdecken dich, bekommen etwas Nützliches geschenkt, lernen dich per E-Mail kennen und kaufen. Ist der Weg einmal gebaut, läuft er Tag und Nacht.</p>
+
+  <div class="funnel" aria-label="Funnel-Stufen">
+    <div style="width:100%">Aufmerksamkeit<small>Reels, Pins, Kooperationen · Ziel: Klicks</small></div>
+    <div style="width:88%">Lead-Magnet<small>Gratis-PDF gegen E-Mail · Ziel: 25–40 % Eintragungen</small></div>
+    <div style="width:76%">Willkommensstrecke<small>5 E-Mails in 10 Tagen · Ziel: Vertrauen</small></div>
+    <div style="width:64%">Erstkauf<small>Einstiegsprodukt + Willkommensrabatt</small></div>
+    <div style="width:52%">Mehr kaufen<small>Bundles, Zubehör, Upsell</small></div>
+    <div style="width:40%">Bindung<small>Bewertung, Wiederkauf, Weiterempfehlung</small></div>
+  </div>
+
+  <div class="note"><b>Beispiel für Alltagszauberkids:</b> Die Beispiele unten gehen von Produkten aus, die den Familienalltag mit Kindern leichter machen. Tausche Namen und Themen gegen dein echtes Sortiment aus.</div>
+
+  <h2>Deinen ersten Funnel bauen</h2>
+  <ol class="steps">
+    <li><div><h3>Lead-Magnet festlegen</h3><p>Etwas, das in 5 Minuten hilft und zu deinen Produkten passt. Beispiele: „Morgenroutine-Karten zum Ausdrucken“, „7 Spielideen für Regentage“, „Wochenplan für entspannte Abende“. Gestalte das PDF in Canva.</p></div></li>
+    <li><div><h3>Landingpage in Shopify</h3><p>Neue Seite unter <code>Onlineshop → Seiten</code>, z. B. <code>/pages/zauberstart</code>. Aufbau: Überschrift mit Nutzen, Bild vom PDF, 3 Stichpunkte, Anmeldeformular aus Klaviyo oder Brevo, kurzer Satz zur Abmeldung jederzeit.</p></div></li>
+    <li><div><h3>Double-Opt-in einschalten</h3><p>Das ist in Deutschland Pflicht. Die Bestätigungs-E-Mail enthält einen Klick-Link. Erst danach geht das PDF raus. Im E-Mail-Tool unter „Listen“ die doppelte Bestätigung aktivieren.</p></div></li>
+    <li><div><h3>Willkommensstrecke verbinden</h3><p>Trigger: „Zur Liste hinzugefügt“. Die fertigen Texte findest du in Kapitel 4.</p></div></li>
+    <li><div><h3>Traffic hinschicken</h3><p>Link in der Instagram-Bio, angepinnter Pin, Stichwort-Bot in ManyChat (Kapitel 5), Hinweis im Paket und auf der Danke-Seite.</p></div></li>
+    <li><div><h3>Messen und verbessern</h3><p>Einmal im Monat drei Zahlen prüfen: Eintragungsrate der Landingpage, Öffnungsrate der Willkommensmails, Kaufrate der neuen Kontakte innerhalb von 30 Tagen.</p></div></li>
+  </ol>
+
+  <h2>Weitere Funnels, die sich lohnen</h2>
+  <div class="grid">
+    <div class="box"><h3>Saison-Funnel</h3><p>Einschulung, Ostern, Weihnachten: 3 Wochen vorher Gratis-Checkliste, dann Bundle-Angebot mit Countdown in der E-Mail.</p></div>
+    <div class="box"><h3>Quiz-Funnel</h3><p>„Welcher Alltagstyp ist deine Familie?“ 5 Fragen, Ergebnis per E-Mail mit passenden Produkten. Tools: Shopify-App „Octane AI“ oder ein Typeform mit n8n.</p></div>
+    <div class="box"><h3>Danke-Seiten-Funnel</h3><p>Nach dem Kauf: Ein passendes Zubehör mit 10 % für 24 Stunden anbieten. Erhöht den Bestellwert ohne Werbekosten.</p></div>
+    <div class="box"><h3>Empfehlungs-Funnel</h3><p>Nach einer guten Bewertung: „Schenk einer Freundin 10 %, du bekommst auch 10 %.“ Tools: Shopify-Rabattcodes oder die App „Referral Candy“.</p></div>
+  </div>
+
+  <ul class="tasks">
+    <li><label><input type="checkbox" data-task="f1"><span>Lead-Magnet als PDF fertig</span></label></li>
+    <li><label><input type="checkbox" data-task="f2"><span>Landingpage live und auf dem Handy getestet</span></label></li>
+    <li><label><input type="checkbox" data-task="f3"><span>Double-Opt-in mit einer eigenen Test-Adresse durchgespielt</span></label></li>
+    <li><label><input type="checkbox" data-task="f4"><span>Link in Bio, Pinterest und Paketbeilage eingebaut</span></label></li>
+  </ul>
+</article>
+
+<!-- ============ 4 E-MAIL ============ -->
+<article id="email" data-t="E-Mail" hidden>
+  <span class="eyebrow">Kapitel 4</span>
+  <h1>E-Mail-Automatisierungen</h1>
+  <p class="lead">Diese sieben Abläufe bringen den größten Teil des E-Mail-Umsatzes. Du schreibst sie einmal, danach verschickt das Tool sie im richtigen Moment an die richtige Person.</p>
+
+  <div class="tbl"><table>
+    <thead><tr><th>Ablauf</th><th>Auslöser</th><th>E-Mails</th><th>Priorität</th></tr></thead>
+    <tbody>
+      <tr><td><b>Willkommen</b></td><td>Anmeldung bestätigt</td><td>5 in 10 Tagen</td><td><span class="pill">Zuerst</span></td></tr>
+      <tr><td><b>Abgebrochener Checkout</b></td><td>Kasse begonnen, nicht bezahlt</td><td>3 (nach 1 h, 24 h, 72 h)</td><td><span class="pill">Zuerst</span></td></tr>
+      <tr><td><b>Nach dem Kauf</b></td><td>Bestellung aufgegeben</td><td>3 (Danke, Tipps, Zubehör)</td><td><span class="pill">Zuerst</span></td></tr>
+      <tr><td><b>Bewertung anfragen</b></td><td>7 Tage nach Zustellung</td><td>1–2</td><td><span class="pill t">Danach</span></td></tr>
+      <tr><td><b>Produkt angesehen</b></td><td>Produktseite besucht, nicht gekauft</td><td>1</td><td><span class="pill t">Danach</span></td></tr>
+      <tr><td><b>Wiederkauf</b></td><td>X Tage nach Kauf (bei Verbrauchsartikeln)</td><td>1</td><td><span class="pill o">Später</span></td></tr>
+      <tr><td><b>Zurückgewinnen</b></td><td>120 Tage kein Kauf</td><td>2</td><td><span class="pill o">Später</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Fertige Vorlagen zum Kopieren</h2>
+  <p>Platzhalter in geschweiften Klammern ersetzt dein E-Mail-Tool automatisch. In Klaviyo heißt der Vorname zum Beispiel <code>{{ first_name }}</code>, in Brevo <code>{{ contact.FIRSTNAME }}</code>.</p>
+
+  <details class="box" open><summary>Willkommen · E-Mail 1 (sofort)</summary>
+  <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Dein Zauberstart ist da ✨
+Vorschau: Hier ist dein Gratis-PDF und eine kleine Geschichte
+
+Hallo {Vorname},
+
+schön, dass du da bist! Hier ist dein Download:
+→ [Morgenroutine-Karten herunterladen]
+
+Kurz zu mir: Ich bin {Dein Name} und habe Alltagszauberkids gegründet,
+weil unsere Morgen zu Hause oft im Chaos endeten. Heute gibt es bei uns
+weniger Diskussionen und mehr Lachen – und genau dabei will ich dir helfen.
+
+In den nächsten Tagen schicke ich dir meine liebsten Alltagstricks.
+Kein Spam, versprochen. Du kannst dich jederzeit mit einem Klick abmelden.
+
+Liebe Grüße
+{Dein Name}
+
+PS: Antworte einfach auf diese Mail und erzähl mir, wie alt deine Kinder sind.
+Ich lese jede Nachricht.</pre></div></details>
+
+  <details class="box"><summary>Willkommen · E-Mails 2–5 (Plan)</summary>
+  <ul>
+    <li><b>Tag 2 · Ein Trick:</b> Ein konkreter Alltagstipp mit Foto. Kein Verkauf.</li>
+    <li><b>Tag 4 · Geschichte:</b> Eine echte Kundinnen-Geschichte oder Bewertung mit Foto.</li>
+    <li><b>Tag 6 · Angebot:</b> Bestseller vorstellen, Willkommensrabatt 10 % mit Code, gültig 72 Stunden.</li>
+    <li><b>Tag 9 · Letzte Erinnerung:</b> „Dein Code läuft heute Nacht ab“ + häufige Fragen (Versand, Alter, Material).</li>
+    <li><b>Tag 10 · Verzweigung:</b> Wer gekauft hat, geht in „Nach dem Kauf“. Alle anderen bekommen den normalen Newsletter.</li>
+  </ul></details>
+
+  <details class="box"><summary>Abgebrochener Checkout · E-Mail 1 (nach 1 Stunde)</summary>
+  <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Hast du etwas vergessen, {Vorname}?
+Vorschau: Dein Warenkorb wartet noch auf dich
+
+Hallo {Vorname},
+
+dein Warenkorb ist noch gespeichert:
+{Produktliste mit Bild}
+
+Falls etwas unklar war, antworte einfach auf diese Mail.
+Ich helfe dir gern persönlich weiter.
+
+→ [Zurück zum Warenkorb]
+
+Liebe Grüße
+{Dein Name} von Alltagszauberkids</pre></div>
+  <p class="eyebrow">Mail 2 nach 24 h: Bewertungen zeigen. Mail 3 nach 72 h: kleiner Anreiz, z. B. kostenloser Versand.</p></details>
+
+  <details class="box"><summary>Nach dem Kauf · E-Mail 1 (sofort)</summary>
+  <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Danke, {Vorname}! Dein Paket wird gepackt 📦
+Vorschau: So geht es jetzt weiter
+
+Hallo {Vorname},
+
+vielen Dank für deine Bestellung {Bestellnummer}! Ich packe sie mit viel Liebe.
+Sobald das Paket unterwegs ist, bekommst du eine E-Mail mit der Sendungsverfolgung.
+
+Bis dahin ein Tipp, wie ihr am meisten aus {Produktname} herausholt:
+{3 Sätze Anwendungstipp}
+
+Fragen? Antworte einfach auf diese Mail.
+
+Liebe Grüße
+{Dein Name}</pre></div></details>
+
+  <details class="box"><summary>Bewertung anfragen (7 Tage nach Zustellung)</summary>
+  <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Wie gefällt euch {Produktname}?
+Vorschau: 30 Sekunden, die mir sehr helfen
+
+Hallo {Vorname},
+
+seit ein paar Tagen ist {Produktname} bei euch. Wie kommt ihr damit zurecht?
+
+Deine ehrliche Meinung hilft anderen Familien bei der Entscheidung
+und mir dabei, Alltagszauberkids noch besser zu machen.
+
+→ [Jetzt bewerten]
+
+Mit Foto freue ich mich doppelt (bitte ohne erkennbare Kindergesichter).
+
+Danke dir!
+{Dein Name}</pre></div></details>
+
+  <details class="box"><summary>Zurückgewinnen (120 Tage ohne Kauf)</summary>
+  <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Wir vermissen dich, {Vorname}
+Vorschau: Neues bei Alltagszauberkids + ein kleines Geschenk
+
+Hallo {Vorname},
+
+es ist eine Weile her! Seit deinem letzten Besuch ist einiges passiert:
+{2–3 Neuheiten mit Bild}
+
+Als Willkommen zurück bekommst du mit dem Code ZURUECK10
+10 % auf deine nächste Bestellung, gültig bis {Datum}.
+
+→ [Neuheiten ansehen]
+
+Liebe Grüße
+{Dein Name}</pre></div></details>
+
+  <div class="note"><b>Mit KI schneller schreiben:</b> Gib der KI deine Produktnotiz aus Obsidian und den Auftrag „Schreibe Mail 2 der Willkommensstrecke im Stil von Mail 1, warm, du-Form, maximal 120 Wörter“. Lies jeden Text vor dem Freischalten selbst.</div>
+
+  <ul class="tasks">
+    <li><label><input type="checkbox" data-task="e1"><span>Willkommensstrecke live</span></label></li>
+    <li><label><input type="checkbox" data-task="e2"><span>Abgebrochener Checkout live</span></label></li>
+    <li><label><input type="checkbox" data-task="e3"><span>Nach-dem-Kauf-Strecke live</span></label></li>
+    <li><label><input type="checkbox" data-task="e4"><span>Bewertungsanfrage live</span></label></li>
+    <li><label><input type="checkbox" data-task="e5"><span>Absender-Domain authentifiziert (SPF, DKIM, DMARC im DNS)</span></label></li>
+  </ul>
+</article>
+
+<!-- ============ 5 BOTS ============ -->
+<article id="bots" data-t="Bots" hidden>
+  <span class="eyebrow">Kapitel 5</span>
+  <h1>Fünf Bots, die für dich arbeiten</h1>
+  <p class="lead">Jeder Bot übernimmt eine wiederkehrende Aufgabe. Wichtig: Bots, die mit Kundinnen sprechen, müssen erkennbar machen, dass sie KI sind, und bei schwierigen Fragen an dich übergeben.</p>
+
+  <details class="box" open><summary>1 · Kundenservice-Bot im Shop</summary>
+    <div class="meta"><span class="pill">Shopify Inbox</span><span class="pill o">oder Tidio Lyro</span></div>
+    <ol>
+      <li>App installieren und im Theme aktivieren.</li>
+      <li>FAQ-Liste füttern: Lieferzeit, Versandkosten, Rückgabe, Altersempfehlung, Material, Pflege.</li>
+      <li>Begrüßung: „Hallo! Ich bin der Zauber-Assistent, ein KI-Bot. Bei kniffligen Fragen meldet sich {Dein Name} persönlich.“</li>
+      <li>Übergabe einstellen: Bei Wörtern wie „kaputt“, „Beschwerde“, „Retoure“ geht der Chat an dich aufs Handy.</li>
+      <li>Abends prüfen: Welche Fragen konnte der Bot nicht beantworten? Antwort in die FAQ ergänzen.</li>
+    </ol></details>
+
+  <details class="box"><summary>2 · Instagram-Stichwort-Bot</summary>
+    <div class="meta"><span class="pill">ManyChat</span></div>
+    <ol>
+      <li>ManyChat mit deinem Instagram-Business-Konto verbinden.</li>
+      <li>Automation „Kommentar-Trigger“: Wer unter einem Reel <code>ZAUBER</code> kommentiert, bekommt eine DM.</li>
+      <li>DM-Text: „Hier ist dein Gratis-PDF ✨ Trag dich kurz ein, dann landet es in deinem Postfach:“ + Link zur Landingpage.</li>
+      <li>Im Reel sagen: „Kommentiere ZAUBER und ich schick dir die Karten.“</li>
+    </ol></details>
+
+  <details class="box"><summary>3 · Telegram-Cockpit für dich</summary>
+    <div class="meta"><span class="pill">n8n</span><span class="pill o">Telegram</span></div>
+    <ol>
+      <li>In Telegram <code>@BotFather</code> öffnen, <code>/newbot</code> senden, Namen vergeben, Token kopieren.</li>
+      <li>In n8n ein Telegram-Credential mit dem Token anlegen.</li>
+      <li>Workflow mit „Telegram Trigger“ bauen, der auf Befehle reagiert:
+        <ul><li><code>/umsatz</code> → Shopify-Bestellungen von heute summieren</li>
+        <li><code>/offen</code> → unversendete Bestellungen auflisten</li>
+        <li><code>/notiz Text</code> → Notiz in Obsidian-Inbox speichern</li>
+        <li><code>/frag Frage</code> → dein KI-Brain fragen (Kapitel 6)</li></ul></li>
+      <li>Sicherheit: Im ersten Schritt prüfen, ob die Chat-ID deine ist. Alle anderen Nachrichten ignorieren.</li>
+    </ol></details>
+
+  <details class="box"><summary>4 · Postfach-Assistent</summary>
+    <div class="meta"><span class="pill">n8n</span><span class="pill o">Gmail / IMAP</span><span class="pill o">KI</span></div>
+    <ol>
+      <li>Trigger: neue E-Mail im Kundenpostfach.</li>
+      <li>KI sortiert in Kategorien: Lieferstatus, Retoure, Produktfrage, Kooperation, Spam.</li>
+      <li>Bei Lieferstatus: Bestellung in Shopify suchen, Tracking-Link einfügen.</li>
+      <li>KI schreibt einen <b>Entwurf</b> mit deinem Wissen aus Obsidian. Er landet in „Entwürfe“, nicht im Versand.</li>
+      <li>Du gibst morgens alle Entwürfe in 10 Minuten frei. Erst nach Wochen ohne Korrekturen einzelne Kategorien automatisch senden.</li>
+    </ol></details>
+
+  <details class="box"><summary>5 · Content-Bot</summary>
+    <div class="meta"><span class="pill">n8n</span><span class="pill o">KI</span><span class="pill o">Obsidian</span></div>
+    <ol>
+      <li>Trigger: neues Produkt in Shopify angelegt.</li>
+      <li>KI erzeugt Instagram-Caption, 3 Reel-Hooks, Pinterest-Titel und -Beschreibung, Newsletter-Absatz.</li>
+      <li>Ergebnis als Notiz in <code>30 Marketing/Entwürfe</code> in Obsidian speichern.</li>
+      <li>Du wählst aus, gestaltest in Canva und planst in Metricool.</li>
+    </ol></details>
+
+  <ul class="tasks">
+    <li><label><input type="checkbox" data-task="b1"><span>Kundenservice-Bot mit KI-Hinweis und Übergabe an mich</span></label></li>
+    <li><label><input type="checkbox" data-task="b2"><span>Instagram-Stichwort-Bot läuft</span></label></li>
+    <li><label><input type="checkbox" data-task="b3"><span>Telegram-Cockpit antwortet nur meiner Chat-ID</span></label></li>
+    <li><label><input type="checkbox" data-task="b4"><span>Postfach-Assistent erstellt Entwürfe</span></label></li>
+  </ul>
+</article>
+
+<!-- ============ 6 BRAIN ============ -->
+<article id="brain" data-t="KI-Brain" hidden>
+  <span class="eyebrow">Kapitel 6</span>
+  <h1>Dein KI-Brain mit Obsidian und n8n</h1>
+  <p class="lead">Alles, was du über deinen Shop weißt, steht als Notiz in Obsidian. n8n liest diese Notizen, legt sie in einer Suchdatenbank ab und gibt sie einem KI-Agenten. So beantwortet die KI Fragen mit deinem Wissen statt mit allgemeinen Floskeln.</p>
+
+  <div class="box">
+    <h3>So fließen die Daten</h3>
+    <div class="flow"><span>Obsidian-Notizen</span><i>→</i><span>n8n liest .md-Dateien</span><i>→</i><span>in Abschnitte teilen</span><i>→</i><span>Embeddings</span><i>→</i><span>Vektor-Datenbank</span></div>
+    <div class="flow"><span>Frage per Telegram</span><i>→</i><span>KI-Agent</span><i>→</i><span>sucht passende Notizen</span><i>→</i><span>Antwort mit Quelle</span></div>
+  </div>
+
+  <h2>Schritt 1: Obsidian-Tresor anlegen</h2>
+  <p>Erstelle einen neuen Tresor (Vault) mit dieser Ordnerstruktur. Die Nummern halten die Reihenfolge stabil.</p>
+  <div class="tpl"><button class="copy">Kopieren</button><pre class="nowrap">Alltagszauberkids-Brain/
+├── 00 Inbox/            ← Telegram-Notizen landen hier
+├── 10 Produkte/         ← eine Notiz pro Produkt
+├── 20 Kunden-FAQ/       ← Fragen + deine beste Antwort
+├── 30 Marketing/
+│   ├── Entwürfe/        ← vom Content-Bot
+│   └── Kampagnen/
+├── 40 Abläufe/          ← Schritt-für-Schritt-Anleitungen (SOPs)
+├── 50 Zahlen/           ← tägliche Reports von n8n
+├── 60 Ideen/
+└── 90 Vorlagen/</pre></div>
+
+  <h3>Vorlage für eine Produktnotiz</h3>
+  <div class="tpl"><button class="copy">Kopieren</button><pre class="nowrap">---
+typ: produkt
+name: Morgenroutine-Karten
+sku: AZK-001
+preis: 14.90
+alter: 3-8
+status: aktiv
+---
+## Für wen
+Familien mit Kindern von 3 bis 8, die morgens weniger Stress wollen.
+
+## Nutzen in einem Satz
+Kinder sehen selbst, was als Nächstes kommt, und Eltern müssen weniger erinnern.
+
+## Häufige Fragen
+- Material: …
+- Größe: …
+- Pflege: …
+
+## Wörter, die Kundinnen benutzen
+"endlich weniger Diskussionen", "mein Sohn liebt die Bilder"
+
+## Verwandte Produkte
+[[Abendroutine-Karten]] · [[Magnettafel]]</pre></div>
+
+  <h2>Schritt 2: n8n an Obsidian anbinden</h2>
+  <div class="grid">
+    <div class="box"><span class="pill">Einfach</span><h3>Gemeinsamer Ordner</h3><p>n8n läuft auf demselben Rechner oder NAS wie dein Tresor. Der Knoten <b>Read/Write Files from Disk</b> liest und schreibt die Markdown-Dateien direkt.</p></div>
+    <div class="box"><span class="pill t">Empfohlen</span><h3>Git-Synchronisation</h3><p>Das Obsidian-Plugin <b>Git</b> sichert deinen Tresor in ein privates GitHub-Repository. n8n auf dem Server liest die Dateien mit dem <b>GitHub</b>-Knoten. Funktioniert auch, wenn n8n in der Cloud läuft.</p></div>
+    <div class="box"><span class="pill o">Für Fortgeschrittene</span><h3>Local REST API</h3><p>Das Community-Plugin <b>Local REST API</b> öffnet eine Schnittstelle auf deinem Rechner. n8n spricht sie per <b>HTTP Request</b> mit API-Schlüssel an. Nur erreichbar, wenn der Rechner an ist.</p></div>
+  </div>
+
+  <h2>Schritt 3: Wissen einlesen (Workflow „Brain füttern“)</h2>
+  <ol class="steps">
+    <li><div><h3>Schedule Trigger</h3><p>Jede Nacht um 2 Uhr.</p></div></li>
+    <li><div><h3>Notizen holen</h3><p>Alle <code>.md</code>-Dateien aus <code>10 Produkte</code>, <code>20 Kunden-FAQ</code> und <code>40 Abläufe</code> lesen.</p></div></li>
+    <li><div><h3>Vektor-Speicher</h3><p>Knoten <b>Qdrant Vector Store</b> (oder Supabase / PGVector) im Modus „Insert Documents“. Daran hängen: <b>Default Data Loader</b>, <b>Recursive Character Text Splitter</b> (ca. 800 Zeichen, 100 Überlappung) und ein <b>Embeddings</b>-Knoten.</p></div></li>
+    <li><div><h3>Zum Testen</h3><p>Der <b>Simple Vector Store</b> braucht keine Datenbank. Er verliert die Daten aber bei jedem Neustart und ist nur zum Ausprobieren gedacht.</p></div></li>
+  </ol>
+
+  <h2>Schritt 4: Brain fragen (Workflow „Frag mein Brain“)</h2>
+  <ol class="steps">
+    <li><div><h3>Telegram Trigger</h3><p>Reagiert auf Nachrichten, die mit <code>/frag</code> beginnen. Danach ein <b>If</b>-Knoten, der deine Chat-ID prüft.</p></div></li>
+    <li><div><h3>AI Agent</h3><p>Chat-Modell (z. B. Anthropic Claude oder OpenAI), <b>Simple Memory</b> für den Gesprächsverlauf und als Werkzeug denselben Vektor-Speicher im Modus „Retrieve Documents (As Tool)“.</p></div></li>
+    <li><div><h3>Antwort senden</h3><p><b>Telegram</b>-Knoten „Send Message“ mit der Ausgabe des Agenten.</p></div></li>
+  </ol>
+
+  <h3>System-Anweisung für den Agenten</h3>
+  <div class="tpl"><button class="copy">Kopieren</button><pre>Du bist das Shop-Gedächtnis von Alltagszauberkids, einem Onlineshop für Familien mit Kindern.
+Beantworte Fragen ausschließlich mit Informationen aus der Wissensdatenbank (Werkzeug "brain").
+Suche immer zuerst in der Wissensdatenbank, bevor du antwortest.
+Nenne am Ende die Notizen, aus denen deine Antwort stammt.
+Wenn die Datenbank keine Antwort enthält, sag das klar und schlage vor, welche Notiz angelegt werden sollte.
+Schreibe auf Deutsch, in der Du-Form, kurz und konkret.
+Gib niemals Gesundheits- oder Rechtsberatung, sondern verweise auf Fachleute.</pre></div>
+
+  <div class="note"><b>Datenschutz:</b> Lege keine Namen, Adressen oder Bestelldaten von Kundinnen in den Tresor. Schreib FAQ-Antworten allgemein. Wenn du Kundendaten an eine KI schickst, brauchst du einen AVV mit dem Anbieter. Für besonders sensible Daten kannst du ein lokales Modell mit Ollama nutzen.</div>
+
+  <ul class="tasks">
+    <li><label><input type="checkbox" data-task="k1"><span>Tresor mit Ordnerstruktur angelegt</span></label></li>
+    <li><label><input type="checkbox" data-task="k2"><span>Mindestens 10 Produktnotizen und 20 FAQ-Antworten geschrieben</span></label></li>
+    <li><label><input type="checkbox" data-task="k3"><span>„Brain füttern“ läuft nachts</span></label></li>
+    <li><label><input type="checkbox" data-task="k4"><span>„Frag mein Brain“ antwortet in Telegram mit Quellen</span></label></li>
+  </ul>
+</article>
+
+<!-- ============ 7 N8N ============ -->
+<article id="n8n" data-t="n8n-Rezepte" hidden>
+  <span class="eyebrow">Kapitel 7</span>
+  <h1>n8n einrichten und acht fertige Rezepte</h1>
+  <p class="lead">n8n ist der Motor deines Autopiloten. Du baust Abläufe aus Bausteinen (Knoten) zusammen, ohne zu programmieren.</p>
+
+  <h2>Installation wählen</h2>
+  <div class="grid">
+    <div class="box"><span class="pill">Ohne Technik</span><h3>n8n Cloud</h3><p>Konto anlegen, fertig. Updates und Backups macht n8n. Monatlicher Preis nach Anzahl der Ausführungen.</p></div>
+    <div class="box"><span class="pill t">Günstig &amp; flexibel</span><h3>Eigener Server</h3><p>Kleiner Server bei Hetzner (Standort Deutschland) mit Docker. Eine eigene Subdomain wie <code>n8n.alltagszauberkids.de</code> mit HTTPS ist nötig, damit Shopify Webhooks schicken kann.</p></div>
+    <div class="box"><span class="pill o">Zum Ausprobieren</span><h3>Auf deinem Laptop</h3><p>Docker Desktop installieren, dann den Befehl unten ausführen und <code>http://localhost:5678</code> öffnen.</p></div>
+  </div>
+  <div class="tpl"><button class="copy">Kopieren</button><pre class="nowrap">docker volume create n8n_data
+docker run -it --rm --name n8n -p 5678:5678 \
+  -e GENERIC_TIMEZONE="Europe/Berlin" -e TZ="Europe/Berlin" \
+  -v n8n_data:/home/node/.n8n docker.n8n.io/n8nio/n8n</pre></div>
+
+  <div class="note"><b>Drei Regeln für stabile Workflows:</b> Lege einen „Fehler-Workflow“ an, der dir bei jedem Absturz eine Telegram-Nachricht schickt (in den Workflow-Einstellungen als Error Workflow eintragen). Teste jeden Workflow zuerst mit einer Testbestellung. Exportiere einmal im Monat alle Workflows als Backup.</div>
+
+  <h2>Rezepte</h2>
+  <div class="grid">
+    <div class="box"><h3>Bestell-Melder</h3><div class="flow"><span>Shopify Trigger: Bestellung erstellt</span><i>→</i><span>Telegram</span><i>+</i><span>Google Sheets</span></div><p>Pling aufs Handy mit Produkten und Betrag, jede Bestellung zusätzlich als Zeile in einer Tabelle.</p><p class="eyebrow">Spart ca. 15 Min. / Tag</p></div>
+    <div class="box"><h3>Morgen-Report 7:30 Uhr</h3><div class="flow"><span>Schedule</span><i>→</i><span>Shopify: Bestellungen gestern</span><i>→</i><span>Code: summieren</span><i>→</i><span>Telegram</span><i>+</i><span>Obsidian 50 Zahlen</span></div><p>Umsatz, Bestellungen, Warenkorbwert und offene Pakete, bevor du aufstehst.</p><p class="eyebrow">Spart ca. 20 Min. / Tag</p></div>
+    <div class="box"><h3>Lager-Warnung</h3><div class="flow"><span>Schedule täglich</span><i>→</i><span>Shopify: Produkte</span><i>→</i><span>If Bestand &lt; 5</span><i>→</i><span>Telegram</span></div><p>Rechtzeitig nachbestellen, bevor ein Bestseller ausverkauft ist.</p><p class="eyebrow">Verhindert verlorene Verkäufe</p></div>
+    <div class="box"><h3>Neue Kundin begrüßen</h3><div class="flow"><span>Shopify Trigger: Kunde erstellt</span><i>→</i><span>If Newsletter-Einwilligung</span><i>→</i><span>Klaviyo / Brevo: Kontakt + Tag</span></div><p>Nur nötig, wenn dein E-Mail-Tool nicht schon direkt mit Shopify verbunden ist.</p></div>
+    <div class="box"><h3>Social-Post aus Produkt</h3><div class="flow"><span>Shopify Trigger: Produkt erstellt</span><i>→</i><span>AI Agent</span><i>→</i><span>Datei in Obsidian</span></div><p>Der Content-Bot aus Kapitel 5.</p><p class="eyebrow">Spart ca. 1 Std. / Produkt</p></div>
+    <div class="box"><h3>Postfach-Sortierer</h3><div class="flow"><span>Gmail Trigger</span><i>→</i><span>Text Classifier</span><i>→</i><span>Switch</span><i>→</i><span>Gmail: Entwurf erstellen</span></div><p>Der Postfach-Assistent aus Kapitel 5.</p><p class="eyebrow">Spart ca. 30 Min. / Tag</p></div>
+    <div class="box"><h3>Bewertung → Social Proof</h3><div class="flow"><span>Webhook von Judge.me</span><i>→</i><span>If 5 Sterne</span><i>→</i><span>Obsidian 30 Marketing</span><i>+</i><span>Telegram</span></div><p>Gute Bewertungen sammeln sich automatisch als Material für Posts und E-Mails.</p></div>
+    <div class="box"><h3>Wochen-Rückblick Freitag</h3><div class="flow"><span>Schedule Fr 16 Uhr</span><i>→</i><span>Notizen 50 Zahlen lesen</span><i>→</i><span>AI Agent</span><i>→</i><span>Telegram</span></div><p>Die KI fasst die Woche zusammen und schlägt drei Aufgaben für nächste Woche vor.</p></div>
+  </div>
+
+  <ul class="tasks">
+    <li><label><input type="checkbox" data-task="n1"><span>n8n läuft und ist per HTTPS erreichbar</span></label></li>
+    <li><label><input type="checkbox" data-task="n2"><span>Fehler-Workflow mit Telegram-Nachricht aktiv</span></label></li>
+    <li><label><input type="checkbox" data-task="n3"><span>Bestell-Melder und Morgen-Report laufen</span></label></li>
+    <li><label><input type="checkbox" data-task="n4"><span>Monatliches Backup der Workflows im Kalender eingetragen</span></label></li>
+  </ul>
+</article>
+
+<!-- ============ 8 ALLTAG ============ -->
+<article id="alltag" data-t="Wochenroutine" hidden>
+  <span class="eyebrow">Kapitel 8</span>
+  <h1>Deine Wochenroutine von zu Hause</h1>
+  <p class="lead">Automatisierung schafft Zeit, wenn du feste Zeitfenster hast. So sieht eine Woche aus, in der der Shop mit etwa einer Stunde pro Tag läuft.</p>
+
+  <h2>Jeden Tag · ca. 45 Minuten</h2>
+  <div class="tbl"><table>
+    <thead><tr><th>Wann</th><th>Was</th><th>Wo</th><th>Dauer</th></tr></thead>
+    <tbody>
+      <tr><td>Morgens</td><td>Morgen-Report lesen, Auffälligkeiten notieren</td><td>Telegram</td><td class="cost">5 Min.</td></tr>
+      <tr><td>Morgens</td><td>KI-Entwürfe im Postfach prüfen und senden</td><td>Gmail</td><td class="cost">10 Min.</td></tr>
+      <tr><td>Vormittags</td><td>Etiketten drucken, Pakete packen</td><td>Sendcloud</td><td class="cost">20 Min.</td></tr>
+      <tr><td>Abends</td><td>Offene Bot-Chats und Instagram-DMs beantworten</td><td>Shopify Inbox, ManyChat</td><td class="cost">10 Min.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Jede Woche</h2>
+  <div class="grid">
+    <div class="box"><span class="eyebrow">Montag · 2 Std.</span><h3>Content-Tag</h3><p>Entwürfe aus Obsidian auswählen, in Canva gestalten, alle Posts der Woche in Metricool einplanen.</p></div>
+    <div class="box"><span class="eyebrow">Mittwoch · 1 Std.</span><h3>Newsletter</h3><p>Ein Newsletter pro Woche: Tipp + Geschichte + Produkt. KI schreibt den Entwurf, du gibst ihm deine Stimme.</p></div>
+    <div class="box"><span class="eyebrow">Freitag · 30 Min.</span><h3>Zahlen &amp; Planung</h3><p>Wochen-Rückblick der KI lesen, drei Aufgaben für nächste Woche festlegen, Belege in Lexware Office prüfen.</p></div>
+  </div>
+
+  <h2>Jeden Monat</h2>
+  <ul>
+    <li>Funnel-Zahlen prüfen (Kapitel 3) und eine Sache verbessern</li>
+    <li>Workflows exportieren, Updates für n8n einspielen</li>
+    <li>Buchhaltung an die Steuerberatung übergeben</li>
+    <li>Ein Abo kündigen, das du nicht mehr brauchst</li>
+  </ul>
+
+  <div class="note"><b>Was du nicht automatisieren solltest:</b> Antworten auf Beschwerden, Kooperationsanfragen, Produktentwicklung und den persönlichen Ton in deinem Newsletter. Genau das macht Alltagszauberkids unverwechselbar.</div>
+
+  <ul class="tasks">
+    <li><label><input type="checkbox" data-task="a1"><span>Tägliche und wöchentliche Zeitfenster im Kalender geblockt</span></label></li>
+    <li><label><input type="checkbox" data-task="a2"><span>Shopify-, Telegram- und Sendcloud-App aufs Handy geladen</span></label></li>
+  </ul>
+</article>
+
+<!-- ============ 9 RECHT ============ -->
+<article id="recht" data-t="Recht & DSGVO" hidden>
+  <span class="eyebrow">Kapitel 9</span>
+  <h1>Rechtlich sauber automatisieren</h1>
+  <p class="lead">Ein Onlineshop für Familien in Deutschland hat ein paar Pflichten, die du beim Automatisieren nicht vergessen darfst. Diese Liste ersetzt keine Rechtsberatung. Lass deine Texte von einem Händlerbund oder einer Kanzlei prüfen.</p>
+
+  <ul class="tasks">
+    <li class="h">Shop</li>
+    <li><label><input type="checkbox" data-task="r1"><span>Impressum, AGB, Widerrufsbelehrung und Datenschutzerklärung vorhanden und automatisch aktualisiert</span></label></li>
+    <li><label><input type="checkbox" data-task="r2"><span>Bestellbutton mit „zahlungspflichtig bestellen“ beschriftet, Preise inklusive MwSt. und Versandkosten-Hinweis</span></label></li>
+    <li><label><input type="checkbox" data-task="r3"><span>Verpackungen im Verpackungsregister LUCID registriert und bei einem dualen System lizenziert</span></label></li>
+    <li><label><input type="checkbox" data-task="r4"><span>Produktsicherheit (GPSR): Hersteller mit Adresse, Warn- und Sicherheitshinweise auf jeder Produktseite. Bei Spielzeug zusätzlich CE-Kennzeichnung</span></label></li>
+    <li><label><input type="checkbox" data-task="r5"><span>Cookie-Banner, das Marketing-Cookies erst nach Zustimmung lädt</span></label></li>
+    <li class="h">E-Mail &amp; Daten</li>
+    <li><label><input type="checkbox" data-task="r6"><span>Double-Opt-in aktiv und Einwilligungen werden protokolliert (Zeitpunkt, IP, Quelle)</span></label></li>
+    <li><label><input type="checkbox" data-task="r7"><span>Abmeldelink und Impressum in jeder Marketing-E-Mail</span></label></li>
+    <li><label><input type="checkbox" data-task="r8"><span>AVV mit Shopify, E-Mail-Tool, n8n-Hosting, KI-Anbieter, Versand- und Chat-Tool abgeschlossen</span></label></li>
+    <li><label><input type="checkbox" data-task="r9"><span>Alle Tools in der Datenschutzerklärung genannt</span></label></li>
+    <li class="h">KI &amp; Bots</li>
+    <li><label><input type="checkbox" data-task="r10"><span>Chatbots sagen klar, dass sie KI sind (Transparenzpflicht nach EU-KI-Verordnung)</span></label></li>
+    <li><label><input type="checkbox" data-task="r11"><span>Keine Daten von Kindern sammeln. Fotos in Bewertungen nur ohne erkennbare Kindergesichter verwenden</span></label></li>
+    <li><label><input type="checkbox" data-task="r12"><span>KI-Texte vor der Veröffentlichung geprüft, besonders Aussagen zu Sicherheit und Alter</span></label></li>
+  </ul>
+
+  <div class="note"><b>Geschafft?</b> Dann läuft dein Shop jetzt größtenteils allein. Schau einmal im Quartal wieder hier rein und prüfe, ob alle Haken noch stimmen.</div>
+</article>
+
+<div class="pager"><button id="prev">← Zurück</button><button id="next" class="fw">Weiter →</button></div>
+</main>
+</div>
+
+<script>
+const KEY="azk-autopilot.v1";
+const arts=[...document.querySelectorAll("main article")];
+let done={};
+try{done=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){done={}}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(done))}catch(e){}};
+const boxes=[...document.querySelectorAll("[data-task]")];
+boxes.forEach(b=>{b.checked=!!done[b.dataset.task];b.addEventListener("change",()=>{done[b.dataset.task]=b.checked;save();paint()})});
+
+const nav=document.getElementById("nav");
+nav.innerHTML=arts.map((a,i)=>`<a href="#${a.id}" data-id="${a.id}">${i+1} · ${a.dataset.t}<small></small></a>`).join("");
+
+function paint(){
+  const total=boxes.length,n=boxes.filter(b=>b.checked).length;
+  document.getElementById("pbar").style.width=(total?n/total*100:0)+"%";
+  document.getElementById("ptxt").textContent=`${n} von ${total} Schritten erledigt`;
+  arts.forEach(a=>{const bs=[...a.querySelectorAll("[data-task]")],c=bs.filter(b=>b.checked).length;
+    const l=nav.querySelector(`[data-id="${a.id}"]`);l.querySelector("small").textContent=bs.length?`${c}/${bs.length}`:"";
+    l.classList.toggle("complete",bs.length>0&&c===bs.length)});
+}
+function show(id,scroll){
+  if(!arts.some(a=>a.id===id))id=arts[0].id;
+  arts.forEach(a=>a.hidden=a.id!==id);
+  nav.querySelectorAll("a").forEach(l=>{const on=l.dataset.id===id;l.setAttribute("aria-current",on?"page":"false");if(on&&scroll)l.scrollIntoView({block:"nearest",inline:"center"})});
+  const i=arts.findIndex(a=>a.id===id);
+  const p=document.getElementById("prev"),n=document.getElementById("next");
+  p.hidden=i===0;n.hidden=i===arts.length-1;
+  p.textContent="← "+(arts[i-1]?arts[i-1].dataset.t:"");n.textContent=(arts[i+1]?arts[i+1].dataset.t:"")+" →";
+  p.onclick=()=>go(arts[i-1].id);n.onclick=()=>go(arts[i+1].id);
+  try{localStorage.setItem(KEY+".ch",id)}catch(e){}
+}
+function go(id){show(id,true);window.scrollTo({top:0})}
+nav.addEventListener("click",e=>{const l=e.target.closest("a");if(!l)return;e.preventDefault();go(l.dataset.id)});
+
+document.querySelectorAll(".copy").forEach(btn=>btn.addEventListener("click",()=>{
+  const pre=btn.parentElement.querySelector("pre");const txt=pre.innerText;
+  const ok=()=>{btn.textContent="Kopiert";setTimeout(()=>btn.textContent="Kopieren",1600)};
+  const fallback=()=>{const r=document.createRange();r.selectNodeContents(pre);const s=getSelection();s.removeAllRanges();s.addRange(r);btn.textContent="Markiert – jetzt kopieren"};
+  try{navigator.clipboard.writeText(txt).then(ok,fallback)}catch(e){fallback()}
+}));
+
+let start=(location.hash||"").slice(1);
+if(!start){try{start=localStorage.getItem(KEY+".ch")||""}catch(e){}}
+paint();show(start||"start",true);
+</script>
+
+</body>
+</html>

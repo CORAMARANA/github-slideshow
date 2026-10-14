@@ -1,0 +1,337 @@
+<title>Zuhause Fit</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: one-column phone app, bottom tab bar, full-screen interval player overlay */
+:root{
+  --bg:#F2F3F7; --surface:#FFFFFF; --fg:#121528; --muted:#5E6478; --line:#DCDFEA;
+  --accent:#2B4BEB; --accent-fg:#FFFFFF; --pop:#C8F04A; --pop-fg:#121528; --rest:#F2A93B;
+  --display:"Barlow Condensed","Arial Narrow",Arial,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1020; --surface:#181B30; --fg:#EEF0FA; --muted:#A3A8C3; --line:#2A2E4A;
+  --accent:#7C93FF; --accent-fg:#0E1020; --pop:#C8F04A; --pop-fg:#121528; --rest:#F5B95C; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1020; --surface:#181B30; --fg:#EEF0FA; --muted:#A3A8C3; --line:#2A2E4A;
+  --accent:#7C93FF; --accent-fg:#0E1020; --pop:#C8F04A; --pop-fg:#121528; --rest:#F5B95C; color-scheme:dark}
+
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5}
+*{box-sizing:border-box}
+.wrap{max-width:560px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px calc(96px + env(safe-area-inset-bottom,0px))}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.05}
+h1{font-size:2.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.01em}
+h2{font-size:1.5rem;font-weight:700;text-transform:uppercase;letter-spacing:.02em}
+h3{font-size:1.25rem;font-weight:700}
+p{margin:0}
+.eyebrow{font-size:.75rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:600}
+.muted{color:var(--muted)}
+.num{font-family:var(--display);font-variant-numeric:tabular-nums}
+section.view{display:flex;flex-direction:column;gap:22px}
+.stack{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px}
+button{font:inherit;cursor:pointer;border:0;border-radius:10px}
+button:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{background:var(--accent);color:var(--accent-fg);padding:12px 18px;font-weight:600}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.btn.pop{background:var(--pop);color:var(--pop-fg);font-family:var(--display);font-size:1.3rem;text-transform:uppercase;font-weight:800;letter-spacing:.03em;padding:14px 22px}
+
+/* Hero: today's workout */
+.hero{background:var(--fg);color:var(--bg);border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:14px}
+.hero .eyebrow{color:var(--bg);opacity:.7}
+.hero h2{font-size:2.2rem}
+.hero .meta{display:flex;gap:18px;flex-wrap:wrap;font-size:.95rem;opacity:.85}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}
+.stat b{display:block;font-family:var(--display);font-size:2rem;line-height:1;font-variant-numeric:tabular-nums}
+.stat span{font-size:.8rem;color:var(--muted)}
+
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;text-align:center}
+.day{display:flex;flex-direction:column;gap:6px;align-items:center;font-size:.75rem;color:var(--muted)}
+.dot{width:100%;max-width:40px;aspect-ratio:1;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-family:var(--display);font-weight:700;color:var(--fg);font-size:.95rem}
+.dot.done{background:var(--pop);border-color:var(--pop);color:var(--pop-fg)}
+.dot.today{border-color:var(--accent)}
+
+.bar{height:10px;border-radius:5px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:5px;transition:width .4s}
+
+.glasses{display:flex;gap:6px;flex-wrap:wrap}
+.glass{width:34px;height:42px;border:2px solid var(--accent);border-radius:4px 4px 9px 9px;background:transparent;padding:0;position:relative;overflow:hidden}
+.glass.full::after{content:"";position:absolute;inset:30% 0 0 0;background:var(--accent);opacity:.75}
+
+.plan{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+.plan .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.chip{font-size:.75rem;padding:2px 8px;border-radius:99px;border:1px solid var(--line);color:var(--muted);font-weight:600}
+.chip.lvl{background:var(--pop);color:var(--pop-fg);border-color:var(--pop)}
+.plan details{grid-column:1/-1}
+.plan summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:.9rem}
+.plan ol{margin:8px 0 0;padding-left:20px;color:var(--muted)}
+
+.ex{display:flex;flex-direction:column;gap:4px}
+.ex .how{font-size:.95rem}
+.ex .easy{font-size:.85rem;color:var(--muted)}
+.filters{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.filters button{background:var(--surface);border:1px solid var(--line);color:var(--fg);padding:6px 12px;white-space:nowrap;font-size:.9rem}
+.filters button[aria-pressed="true"]{background:var(--fg);color:var(--bg);border-color:var(--fg)}
+
+.chart{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:end;height:140px;border-bottom:1px solid var(--line)}
+.chart div{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:4px;font-size:.75rem;color:var(--muted)}
+.chart i{display:block;width:100%;max-width:34px;background:var(--accent);border-radius:6px 6px 0 0;min-height:2px}
+.chartlabels{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;text-align:center;font-size:.75rem;color:var(--muted)}
+.log{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.log:last-child{border-bottom:0}
+.example{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--rest);font-weight:700}
+
+/* Tab bar */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px));z-index:5}
+nav.tabs .in{display:grid;grid-template-columns:repeat(4,1fr);width:100%;max-width:560px}
+nav.tabs button{background:none;color:var(--muted);padding:10px 4px 12px;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.78rem;font-weight:600;border-radius:0}
+nav.tabs button svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+nav.tabs button[aria-current="page"]{color:var(--accent)}
+
+/* Player */
+.player{position:fixed;inset:0;background:var(--fg);color:var(--bg);z-index:10;display:flex;flex-direction:column;padding-top:calc(16px + env(safe-area-inset-top,0px));padding-bottom:calc(20px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));gap:14px;overflow-y:auto}
+.player.rest{background:var(--rest);color:#1C1406}
+.player .top{display:flex;justify-content:space-between;align-items:center}
+.player .x{background:transparent;color:inherit;border:1px solid currentColor;padding:6px 12px;opacity:.8}
+.player .phase{font-family:var(--display);font-size:1.2rem;text-transform:uppercase;letter-spacing:.14em;font-weight:700}
+.player .ring{width:min(70vw,300px);max-width:100%;aspect-ratio:1;margin:0 auto;position:relative}
+.player .ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.player .ring .t{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:clamp(4rem,22vw,7rem);font-variant-numeric:tabular-nums}
+.player .name{font-family:var(--display);font-weight:800;font-size:2.4rem;text-transform:uppercase;text-align:center;line-height:1}
+.player .cue{text-align:center;max-width:40ch;margin:0 auto;opacity:.85}
+.player .next{text-align:center;font-size:.9rem;opacity:.7}
+.player .ctl{display:flex;gap:10px;justify-content:center;margin-top:auto}
+.player .ctl button{padding:14px 22px;font-weight:700;background:var(--bg);color:var(--fg)}
+.player .ctl button.sec{background:transparent;color:inherit;border:1px solid currentColor}
+.player .prog{height:6px;background:rgba(127,127,127,.3);border-radius:3px;overflow:hidden}
+.player .prog i{display:block;height:100%;background:currentColor}
+.done-screen{text-align:center;display:flex;flex-direction:column;gap:14px;align-items:center;margin:auto 0}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <!-- HEUTE -->
+  <section class="view" id="v-heute">
+    <header class="stack" style="gap:4px">
+      <span class="eyebrow" id="today-date"></span>
+      <h1>Zuhause Fit</h1>
+      <p class="muted">Kurze Workouts ohne Geräte. Wohnzimmer reicht.</p>
+    </header>
+
+    <div class="hero">
+      <span class="eyebrow">Vorschlag für heute</span>
+      <h2 id="hero-name"></h2>
+      <div class="meta" id="hero-meta"></div>
+      <div><button class="btn pop" id="hero-start">Training starten</button></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><b id="s-streak">0</b><span>Tage Serie</span></div>
+      <div class="stat"><b id="s-week">0</b><span>Min. diese Woche</span></div>
+      <div class="stat"><b id="s-total">0</b><span>Trainings gesamt</span></div>
+    </div>
+
+    <div class="card stack">
+      <div class="row" style="justify-content:space-between"><h3>Diese Woche</h3><span class="muted num" id="goal-txt"></span></div>
+      <div class="week" id="week"></div>
+      <div class="bar" aria-hidden="true"><i id="goal-bar" style="width:0"></i></div>
+      <p class="muted" style="font-size:.85rem">Ziel: 120 Minuten Bewegung pro Woche. Die WHO empfiehlt 150 Minuten moderate Aktivität, Alltagswege zählen mit.</p>
+    </div>
+
+    <div class="card stack">
+      <div class="row" style="justify-content:space-between"><h3>Wasser heute</h3><span class="muted num" id="water-txt"></span></div>
+      <div class="glasses" id="glasses"></div>
+      <p class="muted" style="font-size:.85rem">Ein Glas = 250 ml. Tippe auf ein Glas, um es zu füllen.</p>
+    </div>
+  </section>
+
+  <!-- PLÄNE -->
+  <section class="view" id="v-plaene" hidden>
+    <header class="stack" style="gap:4px"><span class="eyebrow">Intervall-Training</span><h1>Pläne</h1>
+    <p class="muted">Belastung und Pause laufen automatisch. Du brauchst nur eine Matte.</p></header>
+    <div class="stack" id="plans"></div>
+  </section>
+
+  <!-- ÜBUNGEN -->
+  <section class="view" id="v-uebungen" hidden>
+    <header class="stack" style="gap:4px"><span class="eyebrow">Technik-Bibliothek</span><h1>Übungen</h1></header>
+    <div class="filters" id="filters" role="group" aria-label="Nach Körperbereich filtern"></div>
+    <div class="stack" id="exlist"></div>
+  </section>
+
+  <!-- VERLAUF -->
+  <section class="view" id="v-verlauf" hidden>
+    <header class="stack" style="gap:4px"><span class="eyebrow">Deine Daten bleiben auf diesem Gerät</span><h1>Verlauf</h1></header>
+    <div class="card stack">
+      <h3>Minuten, letzte 7 Tage</h3>
+      <div class="chart" id="chart"></div>
+      <div class="chartlabels" id="chartlabels"></div>
+    </div>
+    <div class="card"><div id="logs"></div></div>
+    <div class="card stack">
+      <h3>Daten zurücksetzen</h3>
+      <p class="muted" style="font-size:.9rem">Löscht alle Trainings und Wasser-Einträge auf diesem Gerät.</p>
+      <div class="row"><button class="btn ghost" id="reset">Alles löschen</button><span id="reset-confirm" hidden class="row"><span>Wirklich?</span><button class="btn" id="reset-yes">Ja, löschen</button></span></div>
+    </div>
+  </section>
+</div>
+
+<nav class="tabs" aria-label="Hauptnavigation"><div class="in">
+  <button data-v="heute" aria-current="page"><svg viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Heute</button>
+  <button data-v="plaene"><svg viewBox="0 0 24 24"><path d="M6 6v12M18 6v12M3 9v6M21 9v6M6 12h12"/></svg>Pläne</button>
+  <button data-v="uebungen"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Übungen</button>
+  <button data-v="verlauf"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/></svg>Verlauf</button>
+</div></nav>
+
+<div class="player" id="player" hidden aria-live="polite"></div>
+
+<script>
+const EX = {
+  squat:{n:"Kniebeugen",m:"Beine",how:"Füße hüftbreit, Gewicht auf den Fersen, Po nach hinten unten schieben, Knie zeigen über die Zehen.",easy:"Leichter: Auf einen Stuhl setzen und wieder aufstehen."},
+  lunge:{n:"Ausfallschritte",m:"Beine",how:"Großer Schritt nach vorn, hinteres Knie Richtung Boden, Oberkörper bleibt aufrecht. Seiten abwechseln.",easy:"Leichter: An der Wand oder Stuhllehne festhalten."},
+  bridge:{n:"Glute Bridge",m:"Po & Rücken",how:"Rückenlage, Füße aufgestellt. Becken anheben bis Knie, Hüfte und Schultern eine Linie bilden. Oben kurz halten.",easy:"Schwerer: Ein Bein gestreckt in die Luft."},
+  pushup:{n:"Liegestütze",m:"Oberkörper",how:"Hände unter den Schultern, Körper bleibt ein Brett. Brust kontrolliert Richtung Boden.",easy:"Leichter: Auf den Knien oder an der Wand."},
+  dips:{n:"Trizeps-Dips am Stuhl",m:"Oberkörper",how:"Hände auf der Stuhlkante, Finger nach vorn. Ellbogen nach hinten beugen, Po nah am Stuhl.",easy:"Leichter: Füße näher an den Stuhl stellen."},
+  plank:{n:"Unterarmstütz",m:"Rumpf",how:"Ellbogen unter den Schultern, Bauch fest, Po auf Rückenhöhe. Ruhig weiteratmen.",easy:"Leichter: Knie am Boden lassen."},
+  side:{n:"Seitstütz",m:"Rumpf",how:"Unterarm unter der Schulter, Hüfte anheben, Körper in einer Linie. Halbzeit Seite wechseln.",easy:"Leichter: Unteres Knie abgelegt."},
+  deadbug:{n:"Dead Bug",m:"Rumpf",how:"Rückenlage, Arme zur Decke, Beine 90°. Gegenüberliegenden Arm und Bein langsam strecken, Rücken bleibt am Boden.",easy:"Leichter: Nur die Beine bewegen."},
+  twist:{n:"Russian Twist",m:"Rumpf",how:"Sitzend, leicht zurücklehnen, Füße am Boden. Oberkörper abwechselnd nach links und rechts drehen.",easy:"Schwerer: Füße anheben."},
+  climber:{n:"Mountain Climbers",m:"Cardio",how:"Hohe Stützposition, Knie abwechselnd zügig zur Brust ziehen. Hüfte bleibt unten.",easy:"Leichter: Langsam und abwechselnd tippen."},
+  jack:{n:"Hampelmann",m:"Cardio",how:"Springen, Beine grätschen und Arme über den Kopf, zurück in die Ausgangsposition.",easy:"Leise Variante: Seitlich heraustippen statt springen (gut, wenn Kinder schlafen)."},
+  knees:{n:"Kniehebelauf",m:"Cardio",how:"Auf der Stelle laufen, Knie bis Hüfthöhe, Arme schwingen mit.",easy:"Leichter: Marschieren statt laufen."},
+  skater:{n:"Skater-Sprünge",m:"Cardio",how:"Seitlich von einem Bein aufs andere springen, hinteres Bein kreuzt hinter.",easy:"Leichter: Seitlicher Schritt statt Sprung."},
+  birddog:{n:"Bird Dog",m:"Po & Rücken",how:"Vierfüßlerstand. Rechten Arm und linkes Bein lang strecken, kurz halten, wechseln.",easy:"Leichter: Nur Bein oder nur Arm."},
+  superman:{n:"Superman",m:"Po & Rücken",how:"Bauchlage, Arme nach vorn. Arme, Brust und Beine leicht anheben, Blick zum Boden.",easy:"Leichter: Abwechselnd nur Arme oder nur Beine."},
+  catcow:{n:"Katze-Kuh",m:"Mobilität",how:"Vierfüßlerstand. Ausatmen: Rücken rund. Einatmen: Brust nach vorn, leichtes Hohlkreuz.",easy:"Langsam im eigenen Atemrhythmus."},
+  hipflex:{n:"Hüftbeuger-Dehnung",m:"Mobilität",how:"Halber Kniestand, Becken nach vorn schieben bis es vorne an der Hüfte zieht. Halbzeit wechseln.",easy:"Kissen unter das Knie legen."},
+  child:{n:"Kindhaltung",m:"Mobilität",how:"Knie breit, Po zu den Fersen, Arme lang nach vorn. Tief in den Rücken atmen.",easy:"Kissen unter den Bauch für mehr Komfort."},
+  thoracic:{n:"Brustwirbel-Rotation",m:"Mobilität",how:"Seitlage, Knie angewinkelt. Oberen Arm wie ein Buch aufklappen, Blick folgt der Hand. Halbzeit wechseln.",easy:"Bewegung nur so weit, wie es angenehm bleibt."},
+  calf:{n:"Wadenheben",m:"Beine",how:"Auf die Zehenspitzen hochdrücken, oben halten, langsam absenken.",easy:"Schwerer: Einbeinig an der Wand."}
+};
+const PLANS = [
+  {id:"express",name:"Express Ganzkörper",tag:"Wenn wenig Zeit ist",lvl:"Einsteiger",work:40,rest:20,rounds:2,ex:["jack","squat","pushup","bridge","climber","plank","lunge"]},
+  {id:"ruecken",name:"Rücken & Haltung",tag:"Nach langem Sitzen am Laptop",lvl:"Einsteiger",work:45,rest:15,rounds:2,ex:["catcow","birddog","superman","bridge","deadbug","thoracic","child"]},
+  {id:"kraft",name:"Kraft Zuhause",tag:"Muskeln ohne Hanteln",lvl:"Mittel",work:45,rest:15,rounds:3,ex:["squat","pushup","lunge","dips","side","bridge"]},
+  {id:"morgen",name:"Morgen-Mobility",tag:"Vor dem ersten Kaffee",lvl:"Alle",work:30,rest:10,rounds:1,ex:["catcow","thoracic","hipflex","calf","birddog","squat","child"]},
+  {id:"cardio",name:"Cardio Burn",tag:"Puls hoch, Kopf frei",lvl:"Fortgeschritten",work:30,rest:30,rounds:3,ex:["jack","knees","skater","climber","squat","twist"]},
+  {id:"rumpf",name:"Starke Mitte",tag:"Bauch und Rumpf",lvl:"Mittel",work:40,rest:20,rounds:2,ex:["plank","deadbug","twist","side","climber","birddog"]}
+];
+// Weekday → suggested plan (Sun..Sat)
+const BY_DAY = ["morgen","express","ruecken","kraft","cardio","rumpf","express"];
+
+const KEY="zuhausefit.v1";
+let S = load();
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.logs))return s}catch(e){}return {logs:[],water:{}}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+const $=s=>document.querySelector(s);
+const pad=n=>String(n).padStart(2,"0");
+const dkey=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const planSecs=p=>p.rounds*p.ex.length*(p.work+p.rest)-p.rest;
+const planMin=p=>Math.round(planSecs(p)/60);
+const DOW=["So","Mo","Di","Mi","Do","Fr","Sa"];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function minsOn(k){return S.logs.filter(l=>l.d===k).reduce((a,l)=>a+l.min,0)}
+function weekStart(d){const x=new Date(d);const wd=(x.getDay()+6)%7;x.setDate(x.getDate()-wd);x.setHours(0,0,0,0);return x}
+function streak(){let n=0;const d=new Date();if(!minsOn(dkey(d)))d.setDate(d.getDate()-1);while(minsOn(dkey(d))){n++;d.setDate(d.getDate()-1)}return n}
+
+function renderToday(){
+  const now=new Date();
+  $("#today-date").textContent=now.toLocaleDateString("de-DE",{weekday:"long",day:"numeric",month:"long"});
+  const p=PLANS.find(x=>x.id===BY_DAY[now.getDay()]);
+  $("#hero-name").textContent=p.name;
+  $("#hero-meta").innerHTML=`<span>${planMin(p)} Min.</span><span>${p.ex.length} Übungen × ${p.rounds} ${p.rounds>1?"Runden":"Runde"}</span><span>${p.work}s / ${p.rest}s Pause</span>`;
+  $("#hero-start").onclick=()=>startPlan(p);
+  const ws=weekStart(now);let wk=0,html="";
+  for(let i=0;i<7;i++){const d=new Date(ws);d.setDate(ws.getDate()+i);const k=dkey(d);const m=minsOn(k);wk+=m;
+    html+=`<div class="day">${DOW[d.getDay()]}<span class="dot${m?" done":""}${k===dkey(now)?" today":""}" title="${m} Minuten">${m?m:d.getDate()}</span></div>`}
+  $("#week").innerHTML=html;
+  $("#s-week").textContent=wk;$("#s-streak").textContent=streak();$("#s-total").textContent=S.logs.length;
+  $("#goal-txt").textContent=wk+" / 120 Min.";$("#goal-bar").style.width=Math.min(100,wk/120*100)+"%";
+  const w=S.water[dkey(now)]||0;let g="";
+  for(let i=0;i<8;i++)g+=`<button class="glass${i<w?" full":""}" data-i="${i}" aria-label="Glas ${i+1}${i<w?" getrunken":""}"></button>`;
+  $("#glasses").innerHTML=g;$("#water-txt").textContent=(w*0.25).toFixed(2).replace(".",",")+" / 2,00 l";
+}
+$("#glasses").addEventListener("click",e=>{const b=e.target.closest(".glass");if(!b)return;const k=dkey(new Date());const i=+b.dataset.i;S.water[k]=(S.water[k]||0)===i+1?i:i+1;save();renderToday()});
+
+function renderPlans(){
+  $("#plans").innerHTML=PLANS.map(p=>`<div class="card plan"><div><h3>${p.name}</h3><p class="muted" style="font-size:.9rem">${p.tag}</p>
+    <div class="tags"><span class="chip lvl">${p.lvl}</span><span class="chip num">${planMin(p)} Min.</span><span class="chip">${p.work}s / ${p.rest}s</span><span class="chip">${p.rounds}× Runde</span></div></div>
+    <button class="btn" data-start="${p.id}">Start</button>
+    <details><summary>Übungen ansehen</summary><ol>${p.ex.map(id=>`<li>${EX[id].n}</li>`).join("")}</ol></details></div>`).join("");
+}
+$("#plans").addEventListener("click",e=>{const b=e.target.closest("[data-start]");if(b)startPlan(PLANS.find(p=>p.id===b.dataset.start))});
+
+let filter="Alle";
+function renderEx(){
+  const groups=["Alle",...new Set(Object.values(EX).map(e=>e.m))];
+  $("#filters").innerHTML=groups.map(g=>`<button aria-pressed="${g===filter}" data-f="${g}">${g}</button>`).join("");
+  $("#exlist").innerHTML=Object.values(EX).filter(e=>filter==="Alle"||e.m===filter).map(e=>`<div class="card ex"><span class="eyebrow">${e.m}</span><h3>${e.n}</h3><p class="how">${e.how}</p><p class="easy">${e.easy}</p></div>`).join("");
+}
+$("#filters").addEventListener("click",e=>{const b=e.target.closest("[data-f]");if(b){filter=b.dataset.f;renderEx()}});
+
+const SAMPLE=(()=>{const out=[];[[1,"express",15],[2,"ruecken",14],[4,"kraft",18]].forEach(([ago,id,min])=>{const d=new Date();d.setDate(d.getDate()-ago);out.push({d:dkey(d),p:id,min,ex:true})});return out})();
+function renderHistory(){
+  const logs=S.logs.length?S.logs:SAMPLE;const isEx=!S.logs.length;
+  const sum=k=>logs.filter(l=>l.d===k).reduce((a,l)=>a+l.min,0);
+  const days=[];for(let i=6;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(d)}
+  const vals=days.map(d=>sum(dkey(d)));const max=Math.max(30,...vals);
+  $("#chart").innerHTML=vals.map(v=>`<div><span class="num">${v||""}</span><i style="height:${v/max*100}%"></i></div>`).join("");
+  $("#chartlabels").innerHTML=days.map(d=>`<span>${DOW[d.getDay()]}</span>`).join("");
+  $("#logs").innerHTML=(isEx?`<p class="example">Beispiel-Einträge, sie verschwinden nach deinem ersten Training</p>`:"")+
+    [...logs].reverse().slice(0,30).map(l=>{const p=PLANS.find(x=>x.id===l.p);const d=new Date(l.d+"T12:00");
+      return `<div class="log"><div><b>${esc(p?p.name:l.p)}</b><div class="muted" style="font-size:.85rem">${d.toLocaleDateString("de-DE",{weekday:"short",day:"numeric",month:"short"})}</div></div><span class="num" style="font-size:1.4rem">${l.min} Min.</span></div>`}).join("");
+}
+$("#reset").onclick=()=>{$("#reset-confirm").hidden=false};
+$("#reset-yes").onclick=()=>{S={logs:[],water:{}};save();$("#reset-confirm").hidden=true;renderAll()};
+
+function show(v){document.querySelectorAll("section.view").forEach(s=>s.hidden=s.id!=="v-"+v);
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.setAttribute("aria-current",b.dataset.v===v?"page":"false"));
+  try{localStorage.setItem(KEY+".tab",v)}catch(e){} window.scrollTo(0,0)}
+document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>show(b.dataset.v));
+
+/* ---------- Interval player ---------- */
+let P=null, ac=null, wake=null;
+function beep(f=880,ms=120){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=f;g.gain.value=.15;o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+ms/1000)}catch(e){}}
+async function lock(){try{wake=await navigator.wakeLock.request("screen")}catch(e){wake=null}}
+function startPlan(p){
+  const steps=[{t:"prep",s:10,id:p.ex[0]}];
+  for(let r=0;r<p.rounds;r++)p.ex.forEach((id,i)=>{steps.push({t:"work",s:p.work,id,r});const last=r===p.rounds-1&&i===p.ex.length-1;if(!last)steps.push({t:"rest",s:p.rest,id:p.ex[(i+1)%p.ex.length]})});
+  P={p,steps,i:0,left:10,run:true,done:false,total:steps.reduce((a,s)=>a+s.s,0),elapsed:0};
+  $("#player").hidden=false;document.body.style.overflow="hidden";beep(660);lock();drawPlayer();clearInterval(P.tm);P.tm=setInterval(tick,1000);
+}
+function tick(){if(!P||!P.run||P.done)return;P.left--;P.elapsed++;if(P.left<=3&&P.left>0)beep(880,90);if(P.left<=0)next();else drawPlayer()}
+function next(){P.i++;if(P.i>=P.steps.length){finish();return}P.left=P.steps[P.i].s;beep(P.steps[P.i].t==="work"?1320:520,220);drawPlayer()}
+function finish(){P.done=true;clearInterval(P.tm);const min=Math.max(1,Math.round(P.elapsed/60));S.logs.push({d:dkey(new Date()),p:P.p.id,min});save();
+  $("#player").className="player";$("#player").innerHTML=`<div class="done-screen"><span class="phase">Geschafft</span><div class="name">${P.p.name}</div><p class="num" style="font-size:3rem;font-weight:800">${min} Min.</p><p class="cue">Trink ein Glas Wasser und dehn dich kurz. Dein Training ist im Verlauf gespeichert.</p><button class="btn pop" id="close-done">Fertig</button></div>`;
+  $("#close-done").onclick=closePlayer;beep(1320,400);renderAll()}
+function closePlayer(){if(P)clearInterval(P.tm);P=null;$("#player").hidden=true;document.body.style.overflow="";try{wake&&wake.release()}catch(e){}}
+function drawPlayer(){
+  const st=P.steps[P.i],e=EX[st.id],C=2*Math.PI*45,frac=P.left/st.s;
+  const nxt=P.steps.slice(P.i+1).find(s=>s.t==="work");
+  const label={prep:"Mach dich bereit",work:"Los geht's",rest:"Pause"}[st.t];
+  $("#player").className="player"+(st.t!=="work"?" rest":"");
+  $("#player").innerHTML=`<div class="top"><span class="eyebrow" style="color:inherit;opacity:.8">${P.p.name}${st.r!=null?" · Runde "+(st.r+1)+"/"+P.p.rounds:""}</span><button class="x" id="pl-x">Beenden</button></div>
+  <div class="prog"><i style="width:${P.elapsed/P.total*100}%"></i></div>
+  <span class="phase" style="text-align:center">${label}</span>
+  <div class="ring"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-opacity=".2" stroke-width="6"/><circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${C*(1-frac)}" style="transition:stroke-dashoffset 1s linear"/></svg><div class="t">${P.left}</div></div>
+  <div class="name">${st.t==="work"?e.n:(st.t==="rest"?"Gleich: "+e.n:e.n)}</div>
+  <p class="cue">${e.how}</p>
+  <p class="next">${st.t==="work"&&nxt?"Danach: "+EX[nxt.id].n:""}</p>
+  <div class="ctl"><button id="pl-pause">${P.run?"Pause":"Weiter"}</button><button class="sec" id="pl-skip">Überspringen</button></div>`;
+  $("#pl-x").onclick=()=>{P.elapsed>=60?finish():closePlayer()};
+  $("#pl-pause").onclick=()=>{P.run=!P.run;drawPlayer()};
+  $("#pl-skip").onclick=next;
+}
+document.addEventListener("keydown",e=>{if(!P||P.done)return;if(e.key===" "){e.preventDefault();P.run=!P.run;drawPlayer()}if(e.key==="Escape")closePlayer()});
+
+function renderAll(){renderToday();renderPlans();renderEx();renderHistory()}
+renderAll();
+try{const t=localStorage.getItem(KEY+".tab");if(t&&document.getElementById("v-"+t))show(t)}catch(e){}
+</script>
