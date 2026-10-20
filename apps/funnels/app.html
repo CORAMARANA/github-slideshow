@@ -1,0 +1,240 @@
+<title>Alltagszauber Funnels</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Nunito+Sans:wght@400;700;800&display=swap">
+<style>
+/* Layout: phone-first single column; each funnel is a card stack of copyable e-mails, matching the Alltagszauber PDF look (cream, plum serif, gold) */
+:root{
+  --bg:#FBF7F1; --surface:#FFFFFF; --fg:#3A2440; --muted:#7A6878; --line:#EADFD3;
+  --plum:#4A2B57; --gold:#B8913A; --accent:#C2513A; --accent-fg:#FFFFFF; --soft:#F4ECE2;
+  --display:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --body:"Nunito Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#1C1420; --surface:#271C2C; --fg:#F2E8F0; --muted:#BFAEBC; --line:#3D2E42;
+  --plum:#E3C9EE; --gold:#E0BC6A; --accent:#F08A70; --accent-fg:#1C1420; --soft:#2F2235; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#1C1420; --surface:#271C2C; --fg:#F2E8F0; --muted:#BFAEBC; --line:#3D2E42;
+  --plum:#E3C9EE; --gold:#E0BC6A; --accent:#F08A70; --accent-fg:#1C1420; --soft:#2F2235; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55}
+.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 56px;display:flex;flex-direction:column;gap:22px}
+h1,h2,h3{font-family:var(--display);color:var(--plum);margin:0;line-height:1.1;text-wrap:balance}
+h1{font-size:2.3rem}
+h2{font-size:1.7rem}
+h3{font-size:1.25rem}
+p{margin:0}
+.eyebrow{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:800}
+.muted{color:var(--muted)}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.note{background:var(--soft);border-radius:12px;padding:14px 16px;font-size:.95rem}
+.flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.85rem}
+.flow span{background:var(--soft);border-radius:99px;padding:3px 10px;font-weight:700}
+.flow i{font-style:normal;color:var(--gold)}
+.status{display:flex;flex-direction:column;gap:0;list-style:none;padding:0;margin:0}
+.status li{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+.status li:last-child{border-bottom:0}
+.status b{min-width:1.4em}
+.mail{display:flex;flex-direction:column;gap:8px}
+.mail .when{display:inline-block;align-self:flex-start;background:var(--plum);color:var(--bg);font-size:.75rem;font-weight:800;border-radius:99px;padding:2px 10px}
+.tpl{position:relative}
+pre{margin:0;background:var(--soft);border-radius:10px;padding:14px;padding-top:40px;font-family:var(--body);font-size:.9rem;white-space:pre-wrap;word-break:break-word}
+.copy{position:absolute;top:8px;right:8px;background:var(--accent);color:var(--accent-fg);border:0;border-radius:8px;font:800 .8rem var(--body);padding:6px 12px;cursor:pointer}
+.copy:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
+a{color:var(--accent);font-weight:700;word-break:break-all}
+</style>
+
+<div class="wrap">
+  <header style="display:flex;flex-direction:column;gap:6px">
+    <span class="eyebrow">Alltagszauber · Liebevoll · Kreativ · Pädagogisch wertvoll</span>
+    <h1>Deine Funnels</h1>
+    <p class="muted">Drei Wege, die neue Familien zu Kundinnen machen. Alle Texte kannst du mit einem Tipp kopieren und in Shopify einfügen.</p>
+  </header>
+
+  <section class="box">
+    <h3>Was schon fertig ist</h3>
+    <ul class="status">
+      <li><b>✅</b><span>Gratis-PDF „Igel-Laterne“ (5 Seiten aus deinem Laternen-Bundle) liegt in deinen Shopify-Dateien</span></li>
+      <li><b>✅</b><span>Anmeldeseite „Gratis: Igel-Laterne zum Basteln“ (noch nicht veröffentlicht)</span></li>
+      <li><b>✅</b><span>Rabattcode WILLKOMMEN10 für E-Mail-Abonnenten, 1× pro Kundin</span></li>
+      <li><b>✅</b><span>Alle E-Mail-Texte unten</span></li>
+      <li><b>⏳</b><span>E-Mails in Shopify einfügen (das machst du, Anleitung unten)</span></li>
+    </ul>
+  </section>
+
+  <!-- FUNNEL 1 -->
+  <section style="display:flex;flex-direction:column;gap:14px">
+    <span class="eyebrow">Funnel 1 · Jetzt bis Sankt Martin</span>
+    <h2>Laternen-Funnel</h2>
+    <div class="flow"><span>Instagram / Pinterest</span><i>→</i><span>Gratis Igel-Laterne</span><i>→</i><span>4 E-Mails</span><i>→</i><span>Laternen basteln 9,99 €</span><i>→</i><span>Herbst-Bundle 24,99 €</span></div>
+
+    <div class="box mail"><span class="when">Sofort nach Anmeldung</span><h3>Mail 1 · Dein Geschenk</h3>
+      <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Deine Igel-Laterne ist da 🦔
+Vorschau: Anleitung, Vorlage und Laternenlieder
+
+Hallo du Liebe,
+
+schön, dass du da bist! Hier ist deine Igel-Laterne zum Basteln:
+
+👉 Igel-Laterne herunterladen:
+https://cdn.shopify.com/s/files/1/0984/8268/4228/files/Alltagszauber_Gratis_Igel-Laterne.pdf?v=1792522475
+
+Darin findest du:
+• die Grundanleitung für die Pappteller-Laterne
+• Foto, Materialliste und Anleitung für den Igel
+• die Vorlage zum Ausschneiden
+• „Laterne, Laterne“ und „Ich geh mit meiner Laterne“ zum Mitsingen
+
+Tipp: Druck die Vorlage auf festem Papier aus, dann lässt sie sich leichter schneiden.
+
+Viel Freude beim Basteln!
+Deine Alltagszauber-Familie 🌈
+
+PS: Schick mir gern ein Foto eurer fertigen Laterne. Ich freue mich über jede Antwort.</pre></div></div>
+
+    <div class="box mail"><span class="when">2 Tage später</span><h3>Mail 2 · Noch 11 Laternen</h3>
+      <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Dino, Rakete oder Regenbogen? 🏮
+Vorschau: Für jedes Kind die Lieblingslaterne
+
+Hallo du Liebe,
+
+hat der Igel schon geleuchtet? 🦔
+
+Viele Kinder wollen beim Laternenumzug „ihr“ Tier haben. Deshalb gibt es bei Alltagszauber 12 Laternen zur Auswahl:
+
+🦖 Dino · 🐯 Tiger · 🦁 Löwe · 🦉 Eule · 🦔 Igel · 🐝 Biene
+🪿 Gans · 🐄 Kuh · 🚀 Rakete · 👾 Monster · 🍄 Fliegenpilz · 🌈 Regenbogen
+
+Jede mit Foto, Anleitung und Vorlage – alle auf derselben einfachen Pappteller-Laterne aufgebaut. Perfekt für Kita-Gruppen, in denen jedes Kind sein eigenes Motiv bastelt.
+
+👉 Laternen basteln ansehen (9,99 €)
+[Link zum Produkt „Laternen basteln“]
+
+Liebe Grüße
+Deine Alltagszauber-Familie 🌈</pre></div></div>
+
+    <div class="box mail"><span class="when">4 Tage später</span><h3>Mail 3 · Das große Herbst-Bundle + 10 %</h3>
+      <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Dein Herbst ist gerettet 🍂 (+10 % Geschenk)
+Vorschau: Laternen, Schnitzeljagd, Basteln – alles in einem
+
+Hallo du Liebe,
+
+der Herbst mit Kindern ist lang – und manchmal ziemlich verregnet. ☔
+
+Darum gibt es unser großes Herbst-Bundle mit 82 Seiten:
+
+🍂 20 Herbst-Bastelvorlagen zum Ausschneiden
+🏮 alle 12 Laternen mit Anleitung und Vorlage
+🎃 Halloween Busy Book mit Rätseln und Labyrinthen
+🔍 Halloween-Schnitzeljagd mit 10 Stationen
+🦊 Waldtiere-Legekreis mit 8 Bonus-Spielideen
+
+Einzeln kosten allein Laternen, Schnitzeljagd und Busy Book schon 25,97 €. Im Bundle bekommst du alles für 24,99 €.
+
+🎁 Und weil du zu unserer Alltagszauber-Familie gehörst, schenke ich dir 10 % mit dem Code:
+WILLKOMMEN10
+
+👉 Zum Herbst-Bundle
+[Link zum Produkt „Das große Herbst-Bundle“]
+
+Liebe Grüße
+Deine Alltagszauber-Familie 🌈</pre></div></div>
+
+    <div class="box mail"><span class="when">7 Tage später</span><h3>Mail 4 · Vorfreude auf den Advent</h3>
+      <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: 24 Zaubermomente statt 24 Schokoladen ✨
+Vorschau: Unser Adventskalender im Glas
+
+Hallo du Liebe,
+
+bald beginnt die Adventszeit – und mit ihr die Frage: Was kommt dieses Jahr in den Adventskalender?
+
+Unsere Idee: 24 kleine gemeinsame Momente. Plätzchen backen, Lichterspaziergang, Deckenhöhle, Tanzparty … Jeden Morgen zieht ein Kind ein Röllchen aus dem Glas.
+
+✨ 24 Tageskärtchen mit Foto und Mitmach-Idee
+✨ Rückseiten, Glas-Etiketten und Geschenkanhänger
+✨ sofort zum Ausdrucken
+
+👉 Adventskalender im Glas (7,99 €)
+[Link zum Produkt „Adventskalender im Glas“]
+
+Falls du deinen Code WILLKOMMEN10 noch nicht benutzt hast: Er gilt auch hier.
+
+Eine zauberhafte Vorweihnachtszeit wünscht dir
+deine Alltagszauber-Familie 🌈</pre></div></div>
+  </section>
+
+  <!-- FUNNEL 2 -->
+  <section style="display:flex;flex-direction:column;gap:14px">
+    <span class="eyebrow">Funnel 2 · Läuft das ganze Jahr</span>
+    <h2>Warenkorb-Erinnerung</h2>
+    <div class="flow"><span>Kasse begonnen</span><i>→</i><span>nicht bezahlt</span><i>→</i><span>1 Stunde warten</span><i>→</i><span>Erinnerung</span></div>
+    <div class="box mail"><span class="when">1 Stunde nach Abbruch</span><h3>Hast du etwas vergessen?</h3>
+      <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Deine Bastelideen warten noch auf dich 🌈
+Vorschau: Dein Warenkorb ist gespeichert
+
+Hallo du Liebe,
+
+du hast dir etwas Schönes ausgesucht – dein Warenkorb ist noch für dich gespeichert.
+
+Alle Alltagszauber-Produkte sind digitale PDFs: Nach dem Kauf kannst du sofort herunterladen, ausdrucken und loslegen. Kein Warten auf die Post.
+
+👉 Zurück zum Warenkorb
+
+Hast du eine Frage? Antworte einfach auf diese Mail, ich helfe dir gern.
+
+Liebe Grüße
+Deine Alltagszauber-Familie 🌈</pre></div></div>
+  </section>
+
+  <!-- FUNNEL 3 -->
+  <section style="display:flex;flex-direction:column;gap:14px">
+    <span class="eyebrow">Funnel 3 · Nach jedem Kauf</span>
+    <h2>Danke &amp; Wiederkauf</h2>
+    <div class="flow"><span>Kauf</span><i>→</i><span>5 Tage warten</span><i>→</i><span>Danke + Bewertung</span><i>→</i><span>passendes Produkt</span></div>
+    <div class="box mail"><span class="when">5 Tage nach dem Kauf</span><h3>Wie gefällt es euch?</h3>
+      <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Habt ihr schon losgelegt? 💛
+Vorschau: Ich bin gespannt auf eure Ergebnisse
+
+Hallo du Liebe,
+
+vor ein paar Tagen hast du bei Alltagszauber eingekauft – vielen Dank dafür!
+
+Ich bin so gespannt: Habt ihr schon gebastelt, gerätselt oder gemalt? Antworte mir gern mit einem Foto (am liebsten ohne erkennbare Kindergesichter).
+
+Eine kurze Bewertung im Shop hilft anderen Familien und Kitas sehr bei der Entscheidung. Danke dir!
+
+Schon gesehen? Passend zur Jahreszeit:
+🏮 Laternen basteln – 12 Laternen für Sankt Martin
+🎄 Adventskalender im Glas – 24 Zaubermomente
+
+Liebe Grüße
+Deine Alltagszauber-Familie 🌈</pre></div></div>
+  </section>
+
+  <section class="box">
+    <span class="eyebrow">So fügst du die Mails ein</span>
+    <h3>In der Shopify-App, ca. 10 Minuten pro Funnel</h3>
+    <ol>
+      <li>Shopify-App öffnen → <b>Marketing</b> → <b>Automatisierungen</b>.</li>
+      <li>Vorlage wählen:<br>Funnel 1 → „Neue Abonnenten begrüßen“<br>Funnel 2 → „Abgebrochenen Checkout zurückgewinnen“<br>Funnel 3 → „Kunden nach dem Kauf ansprechen“</li>
+      <li>Bei jeder E-Mail Betreff und Text aus dieser Seite einfügen. Bei Funnel 1 zwischen den Mails „Warten“ auf 2, 4 und 7 Tage stellen.</li>
+      <li>Wo <b>[Link zum Produkt …]</b> steht, einen Button mit dem passenden Produkt einfügen.</li>
+      <li><b>Automatisierung aktivieren.</b> Fertig.</li>
+    </ol>
+    <p class="muted" style="font-size:.9rem">Wenn ein Menüpunkt bei dir anders heißt, schick Claude einen Screenshot.</p>
+  </section>
+
+  <section class="note">
+    <b>Wo kommen die Besucher her?</b> Teile ab jetzt bis Sankt Martin 2–3 Mal pro Woche ein Laternen-Reel oder einen Pin mit dem Satz „Die Igel-Laterne gibt’s gratis – Link in der Bio“. Die Anmeldeseite heißt <b>/pages/gratis-igel-laterne</b>.
+  </section>
+</div>
+
+<script>
+document.querySelectorAll(".copy").forEach(btn=>btn.addEventListener("click",()=>{
+  const pre=btn.parentElement.querySelector("pre");const txt=pre.innerText;
+  const ok=()=>{btn.textContent="Kopiert ✓";setTimeout(()=>btn.textContent="Kopieren",1800)};
+  const fallback=()=>{const r=document.createRange();r.selectNodeContents(pre);const s=getSelection();s.removeAllRanges();s.addRange(r);btn.textContent="Markiert – jetzt kopieren"};
+  try{navigator.clipboard.writeText(txt).then(ok,fallback)}catch(e){fallback()}
+}));
+</script>
