@@ -3,74 +3,406 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Nunito+Sans:wght@400;700;800&display=swap">
 <style>
-/* Layout: phone-first single column; each funnel is a card stack of copyable e-mails, matching the Alltagszauber PDF look (cream, plum serif, gold) */
+/* Layout: single readable column; value ladder up top, then one collapsible section per funnel with copyable e-mails; Alltagszauber PDF look (cream, plum serif, gold) */
 :root{
   --bg:#FBF7F1; --surface:#FFFFFF; --fg:#3A2440; --muted:#7A6878; --line:#EADFD3;
-  --plum:#4A2B57; --gold:#B8913A; --accent:#C2513A; --accent-fg:#FFFFFF; --soft:#F4ECE2;
+  --plum:#4A2B57; --gold:#9A7525; --accent:#B8452F; --accent-fg:#FFFFFF; --soft:#F4ECE2;
+  --s1:#E8F1E4; --s2:#FBEBD3; --s3:#F6DCD5; --s4:#E9DDF0;
   --display:"Cormorant Garamond",Georgia,"Times New Roman",serif;
   --body:"Nunito Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#1C1420; --surface:#271C2C; --fg:#F2E8F0; --muted:#BFAEBC; --line:#3D2E42;
-  --plum:#E3C9EE; --gold:#E0BC6A; --accent:#F08A70; --accent-fg:#1C1420; --soft:#2F2235; color-scheme:dark}}
+  --plum:#E3C9EE; --gold:#E0BC6A; --accent:#F08A70; --accent-fg:#1C1420; --soft:#2F2235;
+  --s1:#22301F; --s2:#382A17; --s3:#3A221E; --s4:#2E2238; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#1C1420; --surface:#271C2C; --fg:#F2E8F0; --muted:#BFAEBC; --line:#3D2E42;
-  --plum:#E3C9EE; --gold:#E0BC6A; --accent:#F08A70; --accent-fg:#1C1420; --soft:#2F2235; color-scheme:dark}
+  --plum:#E3C9EE; --gold:#E0BC6A; --accent:#F08A70; --accent-fg:#1C1420; --soft:#2F2235;
+  --s1:#22301F; --s2:#382A17; --s3:#3A221E; --s4:#2E2238; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.55}
-.wrap{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 56px;display:flex;flex-direction:column;gap:22px}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px 64px;display:flex;flex-direction:column;gap:24px}
 h1,h2,h3{font-family:var(--display);color:var(--plum);margin:0;line-height:1.1;text-wrap:balance}
-h1{font-size:2.3rem}
-h2{font-size:1.7rem}
+h1{font-size:2.4rem}
+h2{font-size:1.75rem}
 h3{font-size:1.25rem}
 p{margin:0}
 .eyebrow{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);font-weight:800}
 .muted{color:var(--muted)}
-.box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
 .note{background:var(--soft);border-radius:12px;padding:14px 16px;font-size:.95rem}
+ol,ul{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
+a{color:var(--accent);font-weight:700;overflow-wrap:anywhere}
+
+/* value ladder */
+.ladder{display:flex;flex-direction:column;gap:6px}
+.step{display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;align-items:center;border-radius:12px;padding:12px 14px}
+.step b{font-family:var(--display);font-size:1.15rem;color:var(--plum)}
+.step small{display:block;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:800}
+.step:nth-child(1){background:var(--s1);margin-right:24%}
+.step:nth-child(2){background:var(--s2);margin-right:16%}
+.step:nth-child(3){background:var(--s3);margin-right:8%}
+.step:nth-child(4){background:var(--s4)}
+@media (max-width:520px){.step{grid-template-columns:1fr;gap:2px}.step:nth-child(n){margin-right:0}}
+
+/* funnels */
+details.funnel{background:var(--surface);border:1px solid var(--line);border-radius:16px}
+details.funnel > summary{list-style:none;cursor:pointer;padding:16px;display:flex;flex-direction:column;gap:4px}
+details.funnel > summary::-webkit-details-marker{display:none}
+details.funnel > summary .row{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+details.funnel > summary .row::after{content:"+";font-size:1.6rem;color:var(--accent);line-height:1}
+details.funnel[open] > summary .row::after{content:"–"}
+.fbody{padding:0 16px 16px;display:flex;flex-direction:column;gap:14px}
 .flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.85rem}
 .flow span{background:var(--soft);border-radius:99px;padding:3px 10px;font-weight:700}
 .flow i{font-style:normal;color:var(--gold)}
-.status{display:flex;flex-direction:column;gap:0;list-style:none;padding:0;margin:0}
-.status li{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
-.status li:last-child{border-bottom:0}
-.status b{min-width:1.4em}
-.mail{display:flex;flex-direction:column;gap:8px}
-.mail .when{display:inline-block;align-self:flex-start;background:var(--plum);color:var(--bg);font-size:.75rem;font-weight:800;border-radius:99px;padding:2px 10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:.75rem;font-weight:800;border-radius:99px;padding:2px 10px;background:var(--plum);color:var(--bg)}
+.chip.ok{background:var(--s1);color:var(--fg)}
+.chip.todo{background:var(--s2);color:var(--fg)}
+.mail{border-top:1px solid var(--line);padding-top:14px;display:flex;flex-direction:column;gap:8px}
+.mail .when{align-self:flex-start;background:var(--plum);color:var(--bg);font-size:.75rem;font-weight:800;border-radius:99px;padding:2px 10px}
 .tpl{position:relative}
-pre{margin:0;background:var(--soft);border-radius:10px;padding:14px;padding-top:40px;font-family:var(--body);font-size:.9rem;white-space:pre-wrap;word-break:break-word}
+pre{margin:0;background:var(--soft);border-radius:10px;padding:14px;padding-top:42px;font-family:var(--body);font-size:.9rem;white-space:pre-wrap;word-break:break-word}
 .copy{position:absolute;top:8px;right:8px;background:var(--accent);color:var(--accent-fg);border:0;border-radius:8px;font:800 .8rem var(--body);padding:6px 12px;cursor:pointer}
-.copy:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px}
-a{color:var(--accent);font-weight:700;word-break:break-all}
+.copy:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:460px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 </style>
 
 <div class="wrap">
   <header style="display:flex;flex-direction:column;gap:6px">
     <span class="eyebrow">Alltagszauber · Liebevoll · Kreativ · Pädagogisch wertvoll</span>
-    <h1>Deine Funnels</h1>
-    <p class="muted">Drei Wege, die neue Familien zu Kundinnen machen. Alle Texte kannst du mit einem Tipp kopieren und in Shopify einfügen.</p>
+    <h1>Dein Funnel-System</h1>
+    <p class="muted">Erst verschenken, dann verkaufen. Jede Familie bekommt zuerst etwas Wertvolles gratis, lernt dich per E-Mail kennen und kauft dann von selbst. Alle E-Mails kannst du mit einem Tipp kopieren.</p>
   </header>
 
   <section class="box">
-    <h3>Was schon fertig ist</h3>
-    <ul class="status">
-      <li><b>✅</b><span>Gratis-PDF „Igel-Laterne“ (5 Seiten aus deinem Laternen-Bundle) liegt in deinen Shopify-Dateien</span></li>
-      <li><b>✅</b><span>Anmeldeseite „Gratis: Igel-Laterne zum Basteln“ (noch nicht veröffentlicht)</span></li>
-      <li><b>✅</b><span>Rabattcode WILLKOMMEN10 für E-Mail-Abonnenten, 1× pro Kundin</span></li>
-      <li><b>✅</b><span>Alle E-Mail-Texte unten</span></li>
-      <li><b>⏳</b><span>E-Mails in Shopify einfügen (das machst du, Anleitung unten)</span></li>
-    </ul>
+    <h2>Die Zauber-Treppe</h2>
+    <p class="muted">Jede Stufe macht die nächste leichter. Niemand kauft beim ersten Kontakt einen Kurs, aber fast jede Familie nimmt ein gutes Geschenk.</p>
+    <div class="ladder">
+      <div class="step"><div><small>Stufe 1</small><b>Gratis</b></div><span>Igel-Laterne · Legekreis Fuchs &amp; Igel · 5-Tage-Gefühle-Kurs per E-Mail</span></div>
+      <div class="step"><div><small>Stufe 2</small><b>3,99–9,99 €</b></div><span>Einzelne PDFs: Malbücher, XXL-Legekreise, Affirmationskarten, Laternen</span></div>
+      <div class="step"><div><small>Stufe 3</small><b>19,99–29,99 €</b></div><span>Bundles: Legekreis Mega Bundle, Herbst-Bundle, Neurodivergenz-Bundle, 25 Kinderrezepte</span></div>
+      <div class="step"><div><small>Stufe 4</small><b>ca. 49 €</b></div><span>Online-Kurs „Zauberhafter Alltag“ (in Planung, Warteliste läuft)</span></div>
+    </div>
   </section>
 
-  <!-- FUNNEL 1 -->
-  <section style="display:flex;flex-direction:column;gap:14px">
-    <span class="eyebrow">Funnel 1 · Jetzt bis Sankt Martin</span>
-    <h2>Laternen-Funnel</h2>
-    <div class="flow"><span>Instagram / Pinterest</span><i>→</i><span>Gratis Igel-Laterne</span><i>→</i><span>4 E-Mails</span><i>→</i><span>Laternen basteln 9,99 €</span><i>→</i><span>Herbst-Bundle 24,99 €</span></div>
+  <section class="box">
+    <h3>Was in deinem Shop schon fertig ist</h3>
+    <div class="tbl"><table>
+      <thead><tr><th>Seite (noch nicht veröffentlicht)</th><th>Geschenk</th><th>Schlagwort</th></tr></thead>
+      <tbody>
+        <tr><td>/pages/gratis-igel-laterne</td><td>PDF Igel-Laterne, 5 Seiten</td><td>freebie-igel-laterne</td></tr>
+        <tr><td>/pages/gratis-legekreis</td><td>PDF Legekreis Fuchs &amp; Igel, 4 Seiten</td><td>freebie-legekreis</td></tr>
+        <tr><td>/pages/gratis-gefuehle-kurs</td><td>5 Kurs-E-Mails (unten)</td><td>freebie-gefuehle-kurs</td></tr>
+        <tr><td>/pages/kurs-warteliste</td><td>Warteliste für den Kurs</td><td>kurs-warteliste</td></tr>
+      </tbody>
+    </table></div>
+    <p class="muted" style="font-size:.9rem">Das Schlagwort bekommt jede Familie automatisch, wenn sie sich auf der Seite einträgt. Daran erkennt Shopify, welche E-Mail-Strecke sie bekommen soll. Außerdem fertig: Rabattcode WILLKOMMEN10 (nur Abonnenten, einmal pro Kundin) und die Kollektion „Gefühle &amp; Stärke“.</p>
+  </section>
 
-    <div class="box mail"><span class="when">Sofort nach Anmeldung</span><h3>Mail 1 · Dein Geschenk</h3>
-      <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Deine Igel-Laterne ist da 🦔
+  <!-- ============ FUNNEL 1 LEGEKREIS ============ -->
+  <details class="funnel" open>
+    <summary><span class="eyebrow">Funnel 1 · Ganzjährig · Kita &amp; Vorschule</span><span class="row"><h2>Legekreis-Funnel</h2></span>
+      <div class="flow"><span>Gratis Fuchs &amp; Igel</span><i>→</i><span>XXL-Legekreise 7,99 €</span><i>→</i><span>Mega Bundle 29,99 €</span><i>→</i><span>Kurs</span></div></summary>
+    <div class="fbody">
+      <div class="chips"><span class="chip ok">Geschenk fertig</span><span class="chip ok">Seite fertig</span><span class="chip todo">Mails einfügen</span></div>
+
+      <div class="mail"><span class="when">Sofort</span><h3>Mail 1 · Dein Geschenk</h3>
+        <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Deine Legekreise sind da 🦊🦔
+Vorschau: Fuchs, Igel und 8 Spielideen
+
+Hallo du Liebe,
+
+schön, dass du da bist! Hier sind deine beiden Legekreise:
+
+👉 Legekreis Fuchs & Igel herunterladen:
+https://cdn.shopify.com/s/files/1/0984/8268/4228/files/Alltagszauber_Gratis_Legekreis_Fuchs_Igel.pdf?v=1792610419
+
+So geht's:
+1. Ausdrucken, am besten auf festem Papier
+2. An den gestrichelten Linien in 4 Teile schneiden
+3. Mischen und das Tier wieder zusammenlegen lassen
+
+Tipp für die Kleinsten: Erst nur 2 Teile austauschen, dann alle 4.
+
+Auf der letzten Seite findest du 8 Spielideen, vom Tiermemory bis zum Wald-Bingo.
+
+Viel Freude beim Legen!
+Deine Alltagszauber-Familie 🌈
+
+PS: Antworte mir gern: Wie alt ist dein Kind, und welches Tier mag es am liebsten?</pre></div></div>
+
+      <div class="mail"><span class="when">2 Tage später</span><h3>Mail 2 · Warum Legekreise so viel können</h3>
+        <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Ein Legekreis, vier kleine Wunder
+Vorschau: Was dein Kind beim Legen alles lernt
+
+Hallo du Liebe,
+
+hat dein Kind den Fuchs schon zusammengesetzt? 🦊
+
+Legekreise sehen einfach aus. Beim Legen passiert aber ganz viel:
+
+🧠 Konzentration: Welches Teil passt wohin?
+✂️ Feinmotorik: Ausschneiden, Greifen, Drehen
+👀 Bildverständnis: Teile zu einem Ganzen zusammensetzen
+💬 Wortschatz: „Das ist das Ohr, das ist die Pfote …“
+
+Darum lieben Erzieherinnen Legekreise für den Morgenkreis, die Freispielzeit und die Vorschulgruppe.
+
+Morgen zeige ich dir, welche Themen Kinder am liebsten legen.
+
+Liebe Grüße
+Deine Alltagszauber-Familie 🌈</pre></div></div>
+
+      <div class="mail"><span class="when">4 Tage später</span><h3>Mail 3 · Die Lieblingsthemen</h3>
+        <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Dino, Meer oder Bauernhof? 🦕🐳🐄
+Vorschau: Für jedes Kind das Lieblingsthema
+
+Hallo du Liebe,
+
+jedes Kind hat sein Herzensthema. Darum gibt es unsere XXL-Legekreise in vielen Welten:
+
+🦕 Dinosaurier
+🐳 Meerestiere
+🐄 Bauernhof
+🦁 Safari-Tiere
+🦔 Waldtiere
+🌈 Farben
+🍂 Jahreszeiten
+💛 Gefühle
+
+Jeder Legekreis mit echten Fotos, sofort zum Ausdrucken, ab 7,99 €.
+
+👉 Alle Legekreise ansehen:
+https://nanwkr-ec.myshopify.com/collections/legekreise
+
+Liebe Grüße
+Deine Alltagszauber-Familie 🌈</pre></div></div>
+
+      <div class="mail"><span class="when">6 Tage später</span><h3>Mail 4 · Mega Bundle + 10 %</h3>
+        <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Alle 8 Legekreis-Themen in einem Paket 🎁
+Vorschau: Plus 10 % Geschenk für dich
+
+Hallo du Liebe,
+
+wenn dein Kind einmal mit Legekreisen angefangen hat, will es meistens mehr. 😊
+
+Darum gibt es unser Legekreis Mega Bundle: alle 8 Themen in einem Paket. Ideal für die Kita-Gruppe, die Vorschule oder für viele Wochen Legespaß zu Hause.
+
+🎁 Weil du zur Alltagszauber-Familie gehörst, schenke ich dir 10 % mit dem Code:
+WILLKOMMEN10
+
+👉 Zum Legekreis Mega Bundle (29,99 €):
+https://nanwkr-ec.myshopify.com/products/legekreis-mega-bundle-8-themen-4593197092
+
+Liebe Grüße
+Deine Alltagszauber-Familie 🌈</pre></div></div>
+
+      <div class="mail"><span class="when">9 Tage später</span><h3>Mail 5 · Weiter geht's</h3>
+        <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Magst du mehr Ideen für euren Alltag? 💛
+Vorschau: Mein kostenloser 5-Tage-Kurs
+
+Hallo du Liebe,
+
+Legekreise sind nur ein kleiner Teil von Alltagszauber. Viele Familien schreiben mir, dass ihnen etwas anderes noch mehr auf dem Herzen liegt: die großen Gefühle ihrer Kinder.
+
+Deshalb habe ich einen kostenlosen 5-Tage-Kurs per E-Mail geschrieben, mit 5 kleinen Impulsen für mehr Ruhe im Familienalltag.
+
+👉 Kurs gratis starten:
+https://nanwkr-ec.myshopify.com/pages/gratis-gefuehle-kurs
+
+Ab jetzt bekommst du ungefähr einmal pro Woche neue Ideen von mir. Wenn du keine mehr möchtest, reicht ein Klick unten auf „Abmelden“.
+
+Liebe Grüße
+Deine Alltagszauber-Familie 🌈</pre></div></div>
+    </div>
+  </details>
+
+  <!-- ============ FUNNEL 2 GEFÜHLE ============ -->
+  <details class="funnel">
+    <summary><span class="eyebrow">Funnel 2 · Ganzjährig · Eltern</span><span class="row"><h2>Gefühle-Funnel mit Mini-Kurs</h2></span>
+      <div class="flow"><span>5-Tage-Kurs gratis</span><i>→</i><span>Gefühle-Produkte 7,99–9,99 €</span><i>→</i><span>Neurodivergenz-Bundle 19,99 €</span><i>→</i><span>Kurs-Warteliste</span></div></summary>
+    <div class="fbody">
+      <div class="chips"><span class="chip ok">Seite fertig</span><span class="chip ok">Kurs-Texte fertig</span><span class="chip todo">Mails einfügen</span></div>
+      <div class="note">Der Mini-Kurs ist selbst das Geschenk, du brauchst dafür kein PDF. Bitte lies die 5 Kurs-Mails einmal durch und ändere alles, was nicht zu deiner Erfahrung passt. Es sind deine Worte, die Vertrauen schaffen.</div>
+
+      <div class="mail"><span class="when">Sofort · Kurstag 1</span><h3>Gefühle benennen</h3>
+        <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Tag 1: Wie ist das Gefühlswetter heute? 🌦️
+Vorschau: Dein Kurs beginnt
+
+Hallo du Liebe,
+
+willkommen zu deinem 5-Tage-Gefühle-Kurs! Ab heute bekommst du jeden Morgen eine kleine Idee, die du gleich ausprobieren kannst.
+
+Tag 1: Gefühle benennen
+
+Kleine Kinder spüren riesige Gefühle, haben aber oft noch keine Worte dafür. Ein Bild hilft: das Gefühlswetter.
+
+☀️ Sonne = fröhlich
+☁️ Wolken = traurig
+⛈️ Gewitter = wütend
+🌫️ Nebel = unsicher oder müde
+
+So geht's:
+Frag beim Frühstück oder vor dem Schlafen: „Wie ist dein Gefühlswetter heute?“ Erzähl auch von deinem eigenen Wetter. So lernt dein Kind: Alle Gefühle dürfen da sein.
+
+Morgen: Wo wohnt die Wut im Körper?
+
+Liebe Grüße
+Deine Alltagszauber-Familie 🌈</pre></div></div>
+
+      <div class="mail"><span class="when">1 Tag später · Kurstag 2</span><h3>Gefühle im Körper</h3>
+        <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Tag 2: Wo wohnt die Wut? 💓
+Vorschau: Ein Spiel, das Gefühle sichtbar macht
+
+Hallo du Liebe,
+
+Gefühle zeigen sich zuerst im Körper: ein heißer Bauch, feste Fäuste, ein Kloß im Hals.
+
+Tag 2: Das Körper-Detektiv-Spiel
+
+Wenn es gerade ruhig ist, fragt ihr gemeinsam:
+„Wo spürst du Freude?“ – vielleicht im Bauch, der kribbelt.
+„Wo spürst du Wut?“ – vielleicht in den Händen.
+
+Dein Kind darf die Stelle zeigen oder auf einem gemalten Körper anmalen.
+
+Warum das hilft: Wer merkt, dass die Wut kommt, kann früher etwas tun. Genau darum geht es morgen.
+
+Liebe Grüße
+Deine Alltagszauber-Familie 🌈</pre></div></div>
+
+      <div class="mail"><span class="when">1 Tag später · Kurstag 3</span><h3>Ruheinseln</h3>
+        <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Tag 3: Atmen wie ein Igel 🦔
+Vorschau: Kleine Ruheinseln für große Gefühle
+
+Hallo du Liebe,
+
+heute geht es um kleine Ruheinseln, die dein Kind selbst nutzen kann.
+
+Tag 3: Tieryoga für den Alltag
+
+🦔 Der Igel: Zusammenrollen, langsam einatmen, beim Ausatmen ganz klein werden.
+🐢 Die Schildkröte: Im Fersensitz nach vorn beugen, Arme nach hinten, 3 ruhige Atemzüge.
+🦁 Der Löwe: Tief einatmen und mit einem lauten „Haaa“ alles rauslassen. Perfekt bei Wut!
+
+Probiert die Übungen erst aus, wenn alle entspannt sind. Dann kennt dein Kind sie, wenn es wirklich darauf ankommt.
+
+Mehr Tierübungen mit Bildkarten findest du hier:
+👉 https://nanwkr-ec.myshopify.com/products/kinderyoga-karten-4573359098
+
+Liebe Grüße
+Deine Alltagszauber-Familie 🌈</pre></div></div>
+
+      <div class="mail"><span class="when">1 Tag später · Kurstag 4</span><h3>Stärkende Sätze</h3>
+        <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Tag 4: Ein Satz in der Brotdose 💬
+Vorschau: Kleine Worte, die lange nachklingen
+
+Hallo du Liebe,
+
+Kinder glauben, was wir ihnen oft sagen. Darum sind stärkende Sätze so wertvoll.
+
+Tag 4: Mutmach-Sätze
+
+„Ich darf Fehler machen. So lerne ich.“
+„Meine Gefühle sind okay.“
+„Ich kann um Hilfe bitten.“
+„Ich bin genau richtig, so wie ich bin.“
+
+So geht's:
+Schreib heute einen Satz auf einen Zettel und leg ihn in die Brotdose oder unters Kopfkissen. Lest ihn abends zusammen.
+
+Fertig gestaltete Karten zum Ausdrucken findest du in unseren Brotdosen-Affirmationskarten:
+👉 https://nanwkr-ec.myshopify.com/products/brotdosen-affirmationskarten-4572675148
+
+Morgen ist schon der letzte Kurstag.
+
+Liebe Grüße
+Deine Alltagszauber-Familie 🌈</pre></div></div>
+
+      <div class="mail"><span class="when">1 Tag später · Kurstag 5</span><h3>Routinen geben Sicherheit</h3>
+        <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Tag 5: Wenn Kinder wissen, was kommt 🗓️
+Vorschau: Der letzte Kurstag und ein kleines Geschenk
+
+Hallo du Liebe,
+
+viele Wutanfälle entstehen in Übergängen: vom Spielen zum Anziehen, vom Spielplatz nach Hause. Kinder fühlen sich sicherer, wenn sie wissen, was als Nächstes kommt.
+
+Tag 5: Bildpläne
+
+Mal oder druck für den Morgen 4–5 Bilder: aufstehen, anziehen, frühstücken, Zähne putzen, Schuhe an. Häng sie auf Augenhöhe auf. Dein Kind darf jedes Bild umdrehen, wenn es fertig ist.
+
+Besonders Kinder, die mehr Struktur brauchen, profitieren davon sehr.
+
+Danke, dass du die 5 Tage mitgemacht hast! 💛
+
+🎁 Als Abschluss schenke ich dir 10 % auf alle Gefühle-Produkte mit dem Code:
+WILLKOMMEN10
+
+👉 Gefühle & Stärke ansehen:
+https://nanwkr-ec.myshopify.com/collections/gefuhle-starke
+
+Liebe Grüße
+Deine Alltagszauber-Familie 🌈</pre></div></div>
+
+      <div class="mail"><span class="when">3 Tage später</span><h3>Verkaufsmail · Neurodivergenz-Bundle</h3>
+        <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Für Kinder, die die Welt ein bisschen anders erleben
+Vorschau: Unser Bundle für mehr Orientierung im Alltag
+
+Hallo du Liebe,
+
+manche Kinder brauchen mehr Struktur, mehr Vorhersehbarkeit und mehr Bilder als Worte. Für sie und ihre Familien habe ich das Neurodivergenz-Bundle gestaltet.
+
+Darin findest du visuelle Hilfen für den Alltag, die Orientierung geben und Übergänge leichter machen. Zu Hause, in der Kita und überall dazwischen.
+
+👉 Zum Neurodivergenz-Bundle (19,99 €):
+https://nanwkr-ec.myshopify.com/products/neurodivergenz-bundle-fuer-kinder-4525768738
+
+Hinweis: Das Bundle ist eine Alltagshilfe und ersetzt keine Diagnose, Therapie oder fachliche Beratung.
+
+Liebe Grüße
+Deine Alltagszauber-Familie 🌈</pre></div></div>
+
+      <div class="mail"><span class="when">7 Tage später</span><h3>Kurs-Warteliste</h3>
+        <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Etwas Großes entsteht gerade ✨
+Vorschau: Möchtest du als Erste davon erfahren?
+
+Hallo du Liebe,
+
+die 5 Kurstage waren nur der Anfang. Viele von euch haben mir geschrieben, dass sie gern tiefer einsteigen möchten.
+
+Darum arbeite ich gerade an meinem ersten Online-Kurs: „Zauberhafter Alltag – gefühlsstark und entspannt mit Kita-Kindern“.
+
+💛 Gefühle verstehen und begleiten
+🗓️ Routinen und Bildpläne, die Sicherheit geben
+🦔 Bewegung und Ruhe mit Tieryoga
+🎈 Gemeinsame Zaubermomente: Basteln, Kochen, Vorlesen
+
+Mit kurzen Videos und einem Arbeitsheft zum Ausdrucken.
+
+👉 Auf die Warteliste setzen:
+https://nanwkr-ec.myshopify.com/pages/kurs-warteliste
+
+Wer auf der Warteliste steht, erfährt als Erste vom Start und bekommt einen Frühbucher-Preis.
+
+Liebe Grüße
+Deine Alltagszauber-Familie 🌈</pre></div></div>
+    </div>
+  </details>
+
+  <!-- ============ FUNNEL 3 LATERNEN ============ -->
+  <details class="funnel">
+    <summary><span class="eyebrow">Funnel 3 · Saison · bis 11. November</span><span class="row"><h2>Laternen-Funnel</h2></span>
+      <div class="flow"><span>Gratis Igel-Laterne</span><i>→</i><span>Laternen basteln 9,99 €</span><i>→</i><span>Herbst-Bundle 24,99 €</span><i>→</i><span>Advent</span></div></summary>
+    <div class="fbody">
+      <div class="chips"><span class="chip ok">Geschenk fertig</span><span class="chip ok">Seite fertig</span><span class="chip todo">Mails einfügen</span></div>
+
+      <div class="mail"><span class="when">Sofort</span><h3>Mail 1 · Dein Geschenk</h3>
+        <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Deine Igel-Laterne ist da 🦔
 Vorschau: Anleitung, Vorlage und Laternenlieder
 
 Hallo du Liebe,
@@ -93,8 +425,8 @@ Deine Alltagszauber-Familie 🌈
 
 PS: Schick mir gern ein Foto eurer fertigen Laterne. Ich freue mich über jede Antwort.</pre></div></div>
 
-    <div class="box mail"><span class="when">2 Tage später</span><h3>Mail 2 · Noch 11 Laternen</h3>
-      <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Dino, Rakete oder Regenbogen? 🏮
+      <div class="mail"><span class="when">2 Tage später</span><h3>Mail 2 · Noch 11 Laternen</h3>
+        <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Dino, Rakete oder Regenbogen? 🏮
 Vorschau: Für jedes Kind die Lieblingslaterne
 
 Hallo du Liebe,
@@ -106,76 +438,70 @@ Viele Kinder wollen beim Laternenumzug „ihr“ Tier haben. Deshalb gibt es bei
 🦖 Dino · 🐯 Tiger · 🦁 Löwe · 🦉 Eule · 🦔 Igel · 🐝 Biene
 🪿 Gans · 🐄 Kuh · 🚀 Rakete · 👾 Monster · 🍄 Fliegenpilz · 🌈 Regenbogen
 
-Jede mit Foto, Anleitung und Vorlage – alle auf derselben einfachen Pappteller-Laterne aufgebaut. Perfekt für Kita-Gruppen, in denen jedes Kind sein eigenes Motiv bastelt.
+Jede mit Foto, Anleitung und Vorlage, alle auf derselben einfachen Pappteller-Laterne aufgebaut. Perfekt für Kita-Gruppen, in denen jedes Kind sein eigenes Motiv bastelt.
 
-👉 Laternen basteln ansehen (9,99 €)
-[Link zum Produkt „Laternen basteln“]
+👉 Laternen basteln (9,99 €):
+https://nanwkr-ec.myshopify.com/products/laternen-basteln-12-laternen-mit-fotos-anleitungen-vorlagen-fur-sankt-martin
 
 Liebe Grüße
 Deine Alltagszauber-Familie 🌈</pre></div></div>
 
-    <div class="box mail"><span class="when">4 Tage später</span><h3>Mail 3 · Das große Herbst-Bundle + 10 %</h3>
-      <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Dein Herbst ist gerettet 🍂 (+10 % Geschenk)
+      <div class="mail"><span class="when">4 Tage später</span><h3>Mail 3 · Herbst-Bundle + 10 %</h3>
+        <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Dein Herbst ist gerettet 🍂 (+10 % Geschenk)
 Vorschau: Laternen, Schnitzeljagd, Basteln – alles in einem
 
 Hallo du Liebe,
 
-der Herbst mit Kindern ist lang – und manchmal ziemlich verregnet. ☔
+der Herbst mit Kindern ist lang und manchmal ziemlich verregnet. ☔
 
 Darum gibt es unser großes Herbst-Bundle mit 82 Seiten:
 
-🍂 20 Herbst-Bastelvorlagen zum Ausschneiden
+🍂 Herbst-Bastelvorlagen zum Ausschneiden
 🏮 alle 12 Laternen mit Anleitung und Vorlage
 🎃 Halloween Busy Book mit Rätseln und Labyrinthen
 🔍 Halloween-Schnitzeljagd mit 10 Stationen
 🦊 Waldtiere-Legekreis mit 8 Bonus-Spielideen
 
-Einzeln kosten allein Laternen, Schnitzeljagd und Busy Book schon 25,97 €. Im Bundle bekommst du alles für 24,99 €.
+🎁 Mit dem Code WILLKOMMEN10 bekommst du 10 % Rabatt.
 
-🎁 Und weil du zu unserer Alltagszauber-Familie gehörst, schenke ich dir 10 % mit dem Code:
-WILLKOMMEN10
-
-👉 Zum Herbst-Bundle
-[Link zum Produkt „Das große Herbst-Bundle“]
+👉 Zum Herbst-Bundle (24,99 €):
+https://nanwkr-ec.myshopify.com/products/das-grosse-herbst-bundle-82-seiten-basteln-laternen-ratsel-waldtiere-fur-kinder
 
 Liebe Grüße
 Deine Alltagszauber-Familie 🌈</pre></div></div>
 
-    <div class="box mail"><span class="when">7 Tage später</span><h3>Mail 4 · Vorfreude auf den Advent</h3>
-      <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: 24 Zaubermomente statt 24 Schokoladen ✨
-Vorschau: Unser Adventskalender im Glas
+      <div class="mail"><span class="when">7 Tage später</span><h3>Mail 4 · Vorfreude auf den Advent</h3>
+        <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: 24 Zaubermomente statt 24 Schokoladen ✨
+Vorschau: Unser Weihnachtskalender im Glas
 
 Hallo du Liebe,
 
-bald beginnt die Adventszeit – und mit ihr die Frage: Was kommt dieses Jahr in den Adventskalender?
+bald beginnt die Adventszeit, und mit ihr die Frage: Was kommt dieses Jahr in den Adventskalender?
 
 Unsere Idee: 24 kleine gemeinsame Momente. Plätzchen backen, Lichterspaziergang, Deckenhöhle, Tanzparty … Jeden Morgen zieht ein Kind ein Röllchen aus dem Glas.
 
-✨ 24 Tageskärtchen mit Foto und Mitmach-Idee
-✨ Rückseiten, Glas-Etiketten und Geschenkanhänger
-✨ sofort zum Ausdrucken
-
-👉 Adventskalender im Glas (7,99 €)
-[Link zum Produkt „Adventskalender im Glas“]
+👉 Weihnachtskalender im Glas (7,99 €):
+https://nanwkr-ec.myshopify.com/products/mein-adventskalender-im-glas-24-zaubermomente-fur-kinder
 
 Falls du deinen Code WILLKOMMEN10 noch nicht benutzt hast: Er gilt auch hier.
 
 Eine zauberhafte Vorweihnachtszeit wünscht dir
 deine Alltagszauber-Familie 🌈</pre></div></div>
-  </section>
+    </div>
+  </details>
 
-  <!-- FUNNEL 2 -->
-  <section style="display:flex;flex-direction:column;gap:14px">
-    <span class="eyebrow">Funnel 2 · Läuft das ganze Jahr</span>
-    <h2>Warenkorb-Erinnerung</h2>
-    <div class="flow"><span>Kasse begonnen</span><i>→</i><span>nicht bezahlt</span><i>→</i><span>1 Stunde warten</span><i>→</i><span>Erinnerung</span></div>
-    <div class="box mail"><span class="when">1 Stunde nach Abbruch</span><h3>Hast du etwas vergessen?</h3>
-      <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Deine Bastelideen warten noch auf dich 🌈
+  <!-- ============ FUNNEL 4 SHOP ============ -->
+  <details class="funnel">
+    <summary><span class="eyebrow">Funnel 4 · Läuft immer mit</span><span class="row"><h2>Warenkorb &amp; nach dem Kauf</h2></span>
+      <div class="flow"><span>Kasse abgebrochen</span><i>→</i><span>Erinnerung</span><span>Kauf</span><i>→</i><span>Danke + Bewertung</span></div></summary>
+    <div class="fbody">
+      <div class="mail"><span class="when">1 Stunde nach Abbruch</span><h3>Warenkorb-Erinnerung</h3>
+        <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Deine Bastelideen warten noch auf dich 🌈
 Vorschau: Dein Warenkorb ist gespeichert
 
 Hallo du Liebe,
 
-du hast dir etwas Schönes ausgesucht – dein Warenkorb ist noch für dich gespeichert.
+du hast dir etwas Schönes ausgesucht, und dein Warenkorb ist noch für dich gespeichert.
 
 Alle Alltagszauber-Produkte sind digitale PDFs: Nach dem Kauf kannst du sofort herunterladen, ausdrucken und loslegen. Kein Warten auf die Post.
 
@@ -185,48 +511,66 @@ Hast du eine Frage? Antworte einfach auf diese Mail, ich helfe dir gern.
 
 Liebe Grüße
 Deine Alltagszauber-Familie 🌈</pre></div></div>
-  </section>
 
-  <!-- FUNNEL 3 -->
-  <section style="display:flex;flex-direction:column;gap:14px">
-    <span class="eyebrow">Funnel 3 · Nach jedem Kauf</span>
-    <h2>Danke &amp; Wiederkauf</h2>
-    <div class="flow"><span>Kauf</span><i>→</i><span>5 Tage warten</span><i>→</i><span>Danke + Bewertung</span><i>→</i><span>passendes Produkt</span></div>
-    <div class="box mail"><span class="when">5 Tage nach dem Kauf</span><h3>Wie gefällt es euch?</h3>
-      <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Habt ihr schon losgelegt? 💛
+      <div class="mail"><span class="when">5 Tage nach dem Kauf</span><h3>Danke &amp; Bewertung</h3>
+        <div class="tpl"><button class="copy">Kopieren</button><pre>Betreff: Habt ihr schon losgelegt? 💛
 Vorschau: Ich bin gespannt auf eure Ergebnisse
 
 Hallo du Liebe,
 
-vor ein paar Tagen hast du bei Alltagszauber eingekauft – vielen Dank dafür!
+vor ein paar Tagen hast du bei Alltagszauber eingekauft. Vielen Dank dafür!
 
-Ich bin so gespannt: Habt ihr schon gebastelt, gerätselt oder gemalt? Antworte mir gern mit einem Foto (am liebsten ohne erkennbare Kindergesichter).
+Ich bin so gespannt: Habt ihr schon gebastelt, gerätselt oder gelegt? Antworte mir gern mit einem Foto, am liebsten ohne erkennbare Kindergesichter.
 
 Eine kurze Bewertung im Shop hilft anderen Familien und Kitas sehr bei der Entscheidung. Danke dir!
 
-Schon gesehen? Passend zur Jahreszeit:
-🏮 Laternen basteln – 12 Laternen für Sankt Martin
-🎄 Adventskalender im Glas – 24 Zaubermomente
+Übrigens: Mein kostenloser 5-Tage-Gefühle-Kurs wartet auch noch auf dich:
+👉 https://nanwkr-ec.myshopify.com/pages/gratis-gefuehle-kurs
 
 Liebe Grüße
 Deine Alltagszauber-Familie 🌈</pre></div></div>
+    </div>
+  </details>
+
+  <!-- ============ KURS ============ -->
+  <section class="box">
+    <span class="eyebrow">Stufe 4 · Dein Kurs</span>
+    <h2>Online-Kurs „Zauberhafter Alltag“</h2>
+    <p>Du hast das Material für einen Kurs schon fast komplett in deinem Shop. Jedes Modul bekommt 3–4 kurze Videos (5–10 Minuten, am Handy aufgenommen) und Seiten aus deinen PDFs als Arbeitsheft.</p>
+    <div class="tbl"><table>
+      <thead><tr><th>Modul</th><th>Inhalt</th><th>Material aus deinem Shop</th></tr></thead>
+      <tbody>
+        <tr><td>1 · Gefühle</td><td>Gefühle benennen, begleiten, Wut-Momente</td><td>Gefühle &amp; Sozialkompetenz, XXL Legekreis Gefühle</td></tr>
+        <tr><td>2 · Routinen</td><td>Bildpläne, Übergänge, Morgen und Abend</td><td>Neurodivergenz-Bundle, Uhr lernen</td></tr>
+        <tr><td>3 · Bewegung &amp; Ruhe</td><td>Tieryoga, Atemübungen, Ruheinseln</td><td>Kinderyoga-Karten, Affirmationskarten</td></tr>
+        <tr><td>4 · Zaubermomente</td><td>Basteln, Kochen, Vorlesen als Ritual</td><td>Kreativ Bundle, 25 Kinderrezepte, 26 Gutenachtgeschichten</td></tr>
+      </tbody>
+    </table></div>
+    <ol>
+      <li><b>Jetzt:</b> Warteliste-Seite veröffentlichen und in Funnel 2 bewerben. Erst bauen, wenn mindestens 30 Familien auf der Liste stehen.</li>
+      <li><b>Start einfach halten:</b> Kurs als digitales Produkt in Shopify verkaufen. Die Kundin bekommt ein Arbeitsheft-PDF mit Links zu nicht öffentlichen Videos.</li>
+      <li><b>Preis:</b> ca. 49 €, für die Warteliste 37 € als Frühbucher-Preis.</li>
+      <li><b>Später:</b> Wenn der Kurs gut läuft, auf eine Kurs-App umziehen, mit Login und Fortschrittsanzeige.</li>
+    </ol>
   </section>
 
+  <!-- ============ EINRICHTEN ============ -->
   <section class="box">
-    <span class="eyebrow">So fügst du die Mails ein</span>
-    <h3>In der Shopify-App, ca. 10 Minuten pro Funnel</h3>
+    <span class="eyebrow">Am Laptop · ca. 15 Minuten pro Funnel</span>
+    <h2>So richtest du einen Funnel ein</h2>
     <ol>
-      <li>Shopify-App öffnen → <b>Marketing</b> → <b>Automatisierungen</b>.</li>
-      <li>Vorlage wählen:<br>Funnel 1 → „Neue Abonnenten begrüßen“<br>Funnel 2 → „Abgebrochenen Checkout zurückgewinnen“<br>Funnel 3 → „Kunden nach dem Kauf ansprechen“</li>
-      <li>Bei jeder E-Mail Betreff und Text aus dieser Seite einfügen. Bei Funnel 1 zwischen den Mails „Warten“ auf 2, 4 und 7 Tage stellen.</li>
-      <li>Wo <b>[Link zum Produkt …]</b> steht, einen Button mit dem passenden Produkt einfügen.</li>
-      <li><b>Automatisierung aktivieren.</b> Fertig.</li>
+      <li>Shopify öffnen → <b>Marketing</b> → <b>Automatisierungen</b> → <b>Automatisierung erstellen</b>.</li>
+      <li>Vorlage <b>„Neue Abonnenten begrüßen“</b> wählen.</li>
+      <li>Nach dem Auslöser eine <b>Bedingung</b> einfügen: <i>Kunden-Tags enthält</i> → das Schlagwort des Funnels, z. B. <b>freebie-legekreis</b>.</li>
+      <li>Mail 1 einfügen. Danach <b>„Warten“</b> einfügen (z. B. 2 Tage), dann die nächste Mail. So weiter, bis alle Mails drin sind.</li>
+      <li>Bei jeder Mail <b>„Testmail senden“</b> und auf dem Handy prüfen.</li>
+      <li><b>Aktivieren.</b> Dann die passende Seite unter <b>Onlineshop → Seiten</b> auf <b>sichtbar</b> stellen.</li>
     </ol>
-    <p class="muted" style="font-size:.9rem">Wenn ein Menüpunkt bei dir anders heißt, schick Claude einen Screenshot.</p>
+    <p class="muted" style="font-size:.9rem">Reihenfolge-Tipp: Erst Funnel 3 (Laternen, wegen Sankt Martin), dann Funnel 1, dann Funnel 2. Wenn ein Menüpunkt anders heißt, schick Claude einen Screenshot.</p>
   </section>
 
   <section class="note">
-    <b>Wo kommen die Besucher her?</b> Teile ab jetzt bis Sankt Martin 2–3 Mal pro Woche ein Laternen-Reel oder einen Pin mit dem Satz „Die Igel-Laterne gibt’s gratis – Link in der Bio“. Die Anmeldeseite heißt <b>/pages/gratis-igel-laterne</b>.
+    <b>Wo kommen die Besucher her?</b> Jeder Funnel braucht einen Weg hinein: der Link in deiner Instagram-Bio, ein Pinterest-Pin pro Geschenk, ein Hinweis in deinen Etsy-Downloads („Mehr Gratis-Ideen auf alltagszauber…“) und das Wort „Gratis“ im Menü deines Shops.
   </section>
 </div>
 
